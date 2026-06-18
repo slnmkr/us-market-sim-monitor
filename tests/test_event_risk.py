@@ -31,10 +31,40 @@ class EventRiskTests(unittest.TestCase):
             self.assertEqual(payload["current_risk"]["max_new_gross_exposure_pct"], 0.65)
             self.assertTrue(any(item["risk_label"] == "cpi" for item in payload["active_events"]))
 
-    def test_normal_when_no_window_is_active(self):
+    def test_pce_window_is_high_risk_before_release(self):
         with tempfile.TemporaryDirectory() as tmp:
             events, policy = self._write_inputs(Path(tmp))
             payload = assess_event_risk("2026-06-24", events_path=events, policy_path=policy)
+            self.assertEqual(payload["current_risk"]["risk_level"], "high")
+            self.assertEqual(payload["current_risk"]["max_new_gross_exposure_pct"], 0.65)
+            self.assertTrue(any(item["risk_label"] == "pce" for item in payload["active_events"]))
+
+    def test_fomc_minutes_window_is_medium_risk(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            events, policy = self._write_inputs(Path(tmp))
+            payload = assess_event_risk("2026-07-07", events_path=events, policy_path=policy)
+            self.assertEqual(payload["current_risk"]["risk_level"], "medium")
+            self.assertEqual(payload["current_risk"]["max_new_gross_exposure_pct"], 0.75)
+            self.assertTrue(any(item["risk_label"] == "fomc_minutes" for item in payload["active_events"]))
+
+    def test_fomc_meeting_window_is_high_risk(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            events, policy = self._write_inputs(Path(tmp))
+            payload = assess_event_risk("2026-07-28", events_path=events, policy_path=policy)
+            self.assertEqual(payload["current_risk"]["risk_level"], "high")
+            self.assertEqual(payload["current_risk"]["max_new_gross_exposure_pct"], 0.65)
+            self.assertTrue(any(item["risk_label"] == "fomc" for item in payload["active_events"]))
+
+    def test_next_events_include_upcoming_fomc_meeting(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            events, policy = self._write_inputs(Path(tmp))
+            payload = assess_event_risk("2026-06-19", events_path=events, policy_path=policy)
+            self.assertTrue(any(item["event"] == "FOMC Meeting - July 2026" for item in payload["next_events"]))
+
+    def test_normal_when_no_window_is_active(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            events, policy = self._write_inputs(Path(tmp))
+            payload = assess_event_risk("2026-06-28", events_path=events, policy_path=policy)
             self.assertEqual(payload["current_risk"]["risk_level"], "normal")
             self.assertEqual(payload["active_events"], [])
 
@@ -53,6 +83,13 @@ class EventRiskTests(unittest.TestCase):
                             "source": "https://example.com/holiday",
                         },
                         {
+                            "date": "2026-06-25",
+                            "time_et": "08:30",
+                            "event": "Personal Income and Outlays - May 2026",
+                            "status": "scheduled",
+                            "source": "https://example.com/pce",
+                        },
+                        {
                             "date": "2026-07-02",
                             "time_et": "08:30",
                             "event": "Employment Situation - June 2026",
@@ -65,6 +102,20 @@ class EventRiskTests(unittest.TestCase):
                             "event": "Consumer Price Index - June 2026",
                             "status": "scheduled",
                             "source": "https://example.com/cpi",
+                        },
+                        {
+                            "date": "2026-07-08",
+                            "time_et": "14:00",
+                            "event": "FOMC Minutes - June 16-17 meeting",
+                            "status": "scheduled",
+                            "source": "https://example.com/fomc-minutes",
+                        },
+                        {
+                            "date": "2026-07-29",
+                            "time_et": "14:00",
+                            "event": "FOMC Meeting - July 2026",
+                            "status": "scheduled",
+                            "source": "https://example.com/fomc-meeting",
                         },
                     ]
                 }
@@ -106,6 +157,33 @@ class EventRiskTests(unittest.TestCase):
                             "post_days": 1,
                             "max_new_gross_exposure_pct": 0.65,
                             "action": "reduce inflation risk",
+                        },
+                        {
+                            "match": {"event_contains": "Personal Income and Outlays"},
+                            "label": "pce",
+                            "risk_level": "high",
+                            "pre_days": 2,
+                            "post_days": 1,
+                            "max_new_gross_exposure_pct": 0.65,
+                            "action": "reduce pce risk",
+                        },
+                        {
+                            "match": {"event_contains": "FOMC Minutes"},
+                            "label": "fomc_minutes",
+                            "risk_level": "medium",
+                            "pre_days": 1,
+                            "post_days": 0,
+                            "max_new_gross_exposure_pct": 0.75,
+                            "action": "review minutes",
+                        },
+                        {
+                            "match": {"event_contains": "FOMC"},
+                            "label": "fomc",
+                            "risk_level": "high",
+                            "pre_days": 2,
+                            "post_days": 1,
+                            "max_new_gross_exposure_pct": 0.65,
+                            "action": "avoid leverage",
                         },
                     ],
                 }

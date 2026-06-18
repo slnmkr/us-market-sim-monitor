@@ -53,7 +53,7 @@ def assess_event_risk(
         "data_boundary": "Deterministic risk-window assessment from source-backed local event config; no broker or account data.",
         "current_risk": current,
         "active_events": active,
-        "next_events": next_events[:5],
+        "next_events": next_events[:8],
     }
 
 
@@ -137,4 +137,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

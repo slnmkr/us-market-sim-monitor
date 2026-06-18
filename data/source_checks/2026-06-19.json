@@ -1,7 +1,7 @@
 {
   "as_of": "2026-06-19",
-  "collected_at_utc": "2026-06-18T23:21:45Z",
-  "collected_at_local": "2026-06-19T07:21:45+0800",
+  "collected_at_utc": "2026-06-18T23:25:12Z",
+  "collected_at_local": "2026-06-19T07:25:12+0800",
   "data_boundary": "Real public web sources only. No broker account, paid feed, login-only page, token, or cookie was used.",
   "checks": [
     {
@@ -52,6 +52,25 @@
         "BLS schedules the June 2026 Employment Situation for Thursday, July 2, 2026 at 08:30 ET."
       ],
       "paper_account_impact": "The paper account must reduce new discretionary risk or explicitly revalidate exposure before the July 2 release."
+    },
+    {
+      "topic": "pce_next",
+      "source_name": "BEA release schedule",
+      "source_url": "https://www.bea.gov/news/schedule",
+      "facts": [
+        "BEA schedules Personal Income and Outlays, May 2026 for Thursday, June 25, 2026 at 08:30 ET."
+      ],
+      "paper_account_impact": "The paper account must revalidate inflation and rate sensitivity before the June 25 release, especially QQQ and TLT sizing."
+    },
+    {
+      "topic": "fomc_next",
+      "source_name": "Federal Reserve July 2026 calendar",
+      "source_url": "https://www.federalreserve.gov/newsevents/2026-july.htm",
+      "facts": [
+        "The Federal Reserve calendar schedules FOMC Minutes for the June 16-17 meeting on July 8, 2026 at 14:00 ET.",
+        "The calendar schedules a two-day FOMC meeting for July 28-29, 2026, with the meeting entry at 14:00 ET on July 29 and a press conference at 14:30 ET."
+      ],
+      "paper_account_impact": "The paper account must avoid leverage around the rate-decision window and review TLT, QQQ, and small-cap exposure before FOMC minutes or the July meeting."
     },
     {
       "topic": "cpi_next",

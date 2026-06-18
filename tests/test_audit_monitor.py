@@ -85,7 +85,9 @@ class AuditMonitorTests(unittest.TestCase):
                         self._check("latest_us_equity_close"),
                         self._check("fomc"),
                         self._check("nonfarm_payroll_next"),
+                        self._check("pce_next"),
                         self._check("cpi_next"),
+                        self._check("fomc_next"),
                     ],
                 }
             ),

@@ -25,7 +25,7 @@
     "risk_level": "closed"
   },
   "data_boundary": "Deterministic risk-window assessment from source-backed local event config; no broker or account data.",
-  "generated_at_utc": "2026-06-18T23:22:49Z",
+  "generated_at_utc": "2026-06-18T23:27:13Z",
   "next_events": [
     {
       "action": "No paper fills or new paper entries on the closed-market date.",
@@ -40,6 +40,18 @@
       "time_et": "all_day"
     },
     {
+      "action": "Reduce discretionary new exposure and require PCE inflation revalidation before and after the release.",
+      "date": "2026-06-25",
+      "days_until": 6,
+      "event": "Personal Income and Outlays - May 2026",
+      "max_new_gross_exposure_pct": 0.65,
+      "risk_label": "pce",
+      "risk_level": "high",
+      "source": "https://www.bea.gov/news/schedule",
+      "status": "scheduled",
+      "time_et": "08:30"
+    },
+    {
       "action": "Reduce discretionary new exposure and require explicit revalidation before and after payrolls.",
       "date": "2026-07-02",
       "days_until": 13,
@@ -52,6 +64,18 @@
       "time_et": "08:30"
     },
     {
+      "action": "Review rate-path sensitivity before adding duration or high-multiple growth exposure around FOMC minutes.",
+      "date": "2026-07-08",
+      "days_until": 19,
+      "event": "FOMC Minutes - June 16-17 meeting",
+      "max_new_gross_exposure_pct": 0.75,
+      "risk_label": "fomc_minutes",
+      "risk_level": "medium",
+      "source": "https://www.federalreserve.gov/newsevents/2026-july.htm",
+      "status": "scheduled",
+      "time_et": "14:00"
+    },
+    {
       "action": "Reduce discretionary new exposure and require inflation-risk revalidation before and after CPI.",
       "date": "2026-07-14",
       "days_until": 25,
@@ -62,6 +86,18 @@
       "source": "https://www.bls.gov/schedule/news_release/cpi.htm",
       "status": "scheduled",
       "time_et": "08:30"
+    },
+    {
+      "action": "Avoid leverage and large new directional exposure around the rate decision.",
+      "date": "2026-07-29",
+      "days_until": 40,
+      "event": "FOMC Meeting - July 2026",
+      "max_new_gross_exposure_pct": 0.65,
+      "risk_label": "fomc",
+      "risk_level": "high",
+      "source": "https://www.federalreserve.gov/newsevents/2026-july.htm",
+      "status": "scheduled",
+      "time_et": "14:00"
     }
   ]
 }

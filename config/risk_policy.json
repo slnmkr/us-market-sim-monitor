@@ -34,6 +34,24 @@
       "action": "Reduce discretionary new exposure and require inflation-risk revalidation before and after CPI."
     },
     {
+      "match": {"event_contains": "Personal Income and Outlays"},
+      "label": "pce",
+      "risk_level": "high",
+      "pre_days": 2,
+      "post_days": 1,
+      "max_new_gross_exposure_pct": 0.65,
+      "action": "Reduce discretionary new exposure and require PCE inflation revalidation before and after the release."
+    },
+    {
+      "match": {"event_contains": "FOMC Minutes"},
+      "label": "fomc_minutes",
+      "risk_level": "medium",
+      "pre_days": 1,
+      "post_days": 0,
+      "max_new_gross_exposure_pct": 0.75,
+      "action": "Review rate-path sensitivity before adding duration or high-multiple growth exposure around FOMC minutes."
+    },
+    {
       "match": {"event_contains": "FOMC"},
       "label": "fomc",
       "risk_level": "high",

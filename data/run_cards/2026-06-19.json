@@ -1,7 +1,7 @@
 {
   "as_of": "2026-06-19",
   "data_boundary": "Local run card from public-source paper-monitor artifacts only; no broker connection, no secrets, no account access, no live orders.",
-  "generated_at_utc": "2026-06-18T23:22:49+00:00",
+  "generated_at_utc": "2026-06-18T23:27:13+00:00",
   "live_gate": {
     "blocker_codes": [
       "insufficient_paper_observations",
@@ -34,6 +34,14 @@
         "time_et": "all_day"
       },
       {
+        "date": "2026-06-25",
+        "days_until": 6,
+        "event": "Personal Income and Outlays - May 2026",
+        "risk_level": "high",
+        "source": "https://www.bea.gov/news/schedule",
+        "time_et": "08:30"
+      },
+      {
         "date": "2026-07-02",
         "days_until": 13,
         "event": "Employment Situation - June 2026",
@@ -42,12 +50,28 @@
         "time_et": "08:30"
       },
       {
+        "date": "2026-07-08",
+        "days_until": 19,
+        "event": "FOMC Minutes - June 16-17 meeting",
+        "risk_level": "medium",
+        "source": "https://www.federalreserve.gov/newsevents/2026-july.htm",
+        "time_et": "14:00"
+      },
+      {
         "date": "2026-07-14",
         "days_until": 25,
         "event": "Consumer Price Index - June 2026",
         "risk_level": "high",
         "source": "https://www.bls.gov/schedule/news_release/cpi.htm",
         "time_et": "08:30"
+      },
+      {
+        "date": "2026-07-29",
+        "days_until": 40,
+        "event": "FOMC Meeting - July 2026",
+        "risk_level": "high",
+        "source": "https://www.federalreserve.gov/newsevents/2026-july.htm",
+        "time_et": "14:00"
       }
     ],
     "risk_level": "closed"
@@ -95,13 +119,15 @@
     }
   },
   "source_check": {
-    "check_count": 6,
+    "check_count": 8,
     "topics": [
       "market_holiday",
       "latest_us_equity_close",
       "fomc",
       "nonfarm_payroll_latest",
       "nonfarm_payroll_next",
+      "pce_next",
+      "fomc_next",
       "cpi_next"
     ]
   }
