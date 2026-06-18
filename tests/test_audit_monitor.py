@@ -41,6 +41,7 @@ class AuditMonitorTests(unittest.TestCase):
             "journal/apply_logs",
             "data/event_risk",
             "data/performance",
+            "data/live_gate",
             "data/market_snapshots",
             "data/source_checks",
             "reports",
@@ -125,6 +126,19 @@ class AuditMonitorTests(unittest.TestCase):
                     },
                     "benchmark": {"status": "ok", "symbol": "SPY", "total_return_pct": 0.0},
                     "comparison": {"status": "ok", "excess_return_pct": 0.0},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (root / f"data/live_gate/{as_of}.json").write_text(
+            json.dumps(
+                {
+                    "as_of": as_of,
+                    "status": "blocked",
+                    "data_boundary": "Local live-account preflight only; no broker connection, no secrets, no account access, no live orders.",
+                    "blockers": [{"code": "test", "message": "blocked"}],
+                    "warnings": [],
+                    "git": {"has_remote": False, "remotes": [], "identity": {}},
                 }
             ),
             encoding="utf-8",

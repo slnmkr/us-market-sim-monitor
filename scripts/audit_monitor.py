@@ -56,6 +56,7 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     source_path = root / "data" / "source_checks" / f"{as_of}.json"
     event_risk_path = root / "data" / "event_risk" / f"{as_of}.json"
     performance_path = root / "data" / "performance" / f"{as_of}.json"
+    live_gate_path = root / "data" / "live_gate" / f"{as_of}.json"
     fill_review_path = root / "journal" / "fill_reviews" / f"{as_of}.json"
     apply_log_paths = [
         root / "journal" / "apply_logs" / f"{as_of}.dry_run.json",
@@ -93,6 +94,10 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     performance = _required_json(performance_path, errors)
     if performance:
         _audit_performance(performance, as_of, errors)
+
+    live_gate = _required_json(live_gate_path, errors)
+    if live_gate:
+        _audit_live_gate(live_gate, as_of, errors)
 
     fill_review = _required_json(fill_review_path, errors)
     if fill_review:
@@ -303,6 +308,24 @@ def _audit_performance(performance: dict[str, Any], as_of: str, errors: list[str
     comparison = performance.get("comparison")
     if not isinstance(comparison, dict):
         errors.append("performance comparison must be an object")
+
+
+def _audit_live_gate(live_gate: dict[str, Any], as_of: str, errors: list[str]) -> None:
+    if live_gate.get("as_of") != as_of:
+        errors.append(f"live gate as_of {live_gate.get('as_of')!r} does not match {as_of}")
+    boundary = live_gate.get("data_boundary", "").lower()
+    for required in ["no broker", "no secrets", "no account access", "no live orders"]:
+        if required not in boundary:
+            errors.append(f"live gate data boundary missing {required!r}")
+    if live_gate.get("status") not in {"blocked", "eligible_for_manual_review"}:
+        errors.append(f"live gate has invalid status {live_gate.get('status')!r}")
+    blockers = live_gate.get("blockers")
+    if not isinstance(blockers, list):
+        errors.append("live gate blockers must be a list")
+    if live_gate.get("status") == "blocked" and not blockers:
+        errors.append("blocked live gate must include at least one blocker")
+    if not isinstance(live_gate.get("git"), dict):
+        errors.append("live gate git section must be an object")
 
 
 def _audit_report(path: Path, as_of: str, errors: list[str], warnings: list[str]) -> None:

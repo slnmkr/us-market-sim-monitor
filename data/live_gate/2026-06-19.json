@@ -1,0 +1,41 @@
+{
+  "as_of": "2026-06-19",
+  "blockers": [
+    {
+      "code": "insufficient_paper_observations",
+      "message": "Paper observations 1 < required 5"
+    },
+    {
+      "code": "missing_required_file",
+      "message": "Missing config/live_mandate.json: User-written live trading mandate with broker, account scope, instrument scope, max order size, max exposure, and expiration."
+    },
+    {
+      "code": "missing_required_file",
+      "message": "Missing config/broker_connection.json: Non-secret broker connection profile or paper/live capability manifest. Secrets must not be committed."
+    },
+    {
+      "code": "missing_git_remote",
+      "message": "No git remote is configured for off-machine audit trail."
+    }
+  ],
+  "data_boundary": "Local live-account preflight only; no broker connection, no secrets, no account access, no live orders.",
+  "generated_at_utc": "2026-06-18T23:14:44+00:00",
+  "git": {
+    "has_remote": false,
+    "identity": {
+      "email": "zhangta@local.invalid",
+      "name": "zhangta"
+    },
+    "remotes": []
+  },
+  "policy": {
+    "max_allowed_drawdown_pct": -5.0,
+    "min_paper_observations": 5,
+    "min_paper_total_return_pct": 0.0,
+    "require_git_remote": true
+  },
+  "status": "blocked",
+  "warnings": [
+    "Git user.email is a local placeholder, not a verified GitHub email."
+  ]
+}

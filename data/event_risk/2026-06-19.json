@@ -25,7 +25,7 @@
     "risk_level": "closed"
   },
   "data_boundary": "Deterministic risk-window assessment from source-backed local event config; no broker or account data.",
-  "generated_at_utc": "2026-06-18T23:11:25Z",
+  "generated_at_utc": "2026-06-18T23:14:43Z",
   "next_events": [
     {
       "action": "No paper fills or new paper entries on the closed-market date.",

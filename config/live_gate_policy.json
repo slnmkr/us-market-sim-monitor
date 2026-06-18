@@ -1,0 +1,20 @@
+{
+  "source_policy": "Live-account eligibility is a local preflight only. It does not authorize or execute brokerage activity.",
+  "min_paper_observations": 5,
+  "min_paper_total_return_pct": 0.0,
+  "max_allowed_drawdown_pct": -5.0,
+  "require_git_remote": true,
+  "required_files": [
+    {
+      "path": "config/live_mandate.json",
+      "description": "User-written live trading mandate with broker, account scope, instrument scope, max order size, max exposure, and expiration."
+    },
+    {
+      "path": "config/broker_connection.json",
+      "description": "Non-secret broker connection profile or paper/live capability manifest. Secrets must not be committed."
+    }
+  ],
+  "blocked_status": "blocked",
+  "eligible_status": "eligible_for_manual_review"
+}
+

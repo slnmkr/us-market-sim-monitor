@@ -4,6 +4,7 @@
 .PHONY: risk
 .PHONY: performance
 .PHONY: apply-fills
+.PHONY: live-gate
 
 DATE ?= $(shell date +%F)
 
@@ -25,5 +26,8 @@ fills: report
 apply-fills: fills
 	python3 scripts/apply_paper_fills.py --date $(DATE)
 
-validate: risk apply-fills performance test
+live-gate: performance
+	python3 scripts/live_account_gate.py --date $(DATE)
+
+validate: risk apply-fills performance live-gate test
 	python3 scripts/audit_monitor.py --date $(DATE)

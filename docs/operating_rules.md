@@ -3,6 +3,7 @@
 ## Non-negotiable boundaries
 
 - No live trading until the user explicitly provides a broker connection, account mandate, and written risk limits.
+- Live-account review must pass `python3 scripts/live_account_gate.py --date YYYY-MM-DD`; passing the gate still does not authorize automatic live trading.
 - No credential collection in this repository. Do not commit secrets, cookies, API keys, browser profiles, or account exports containing private identifiers.
 - No synthetic data may be labeled as real. Paper trades are synthetic unless a broker paper-trading export proves otherwise.
 - No stable-return promise. Reports can express a thesis, confidence, invalidation, and risk, but not guaranteed profits.
