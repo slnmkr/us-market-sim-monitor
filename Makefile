@@ -3,6 +3,7 @@
 .PHONY: fills
 .PHONY: risk
 .PHONY: performance
+.PHONY: apply-fills
 
 DATE ?= $(shell date +%F)
 
@@ -21,5 +22,8 @@ test:
 fills: report
 	python3 scripts/paper_fill.py --date $(DATE)
 
-validate: risk fills performance test
+apply-fills: fills
+	python3 scripts/apply_paper_fills.py --date $(DATE)
+
+validate: risk apply-fills performance test
 	python3 scripts/audit_monitor.py --date $(DATE)

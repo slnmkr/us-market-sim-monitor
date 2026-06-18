@@ -57,6 +57,10 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     event_risk_path = root / "data" / "event_risk" / f"{as_of}.json"
     performance_path = root / "data" / "performance" / f"{as_of}.json"
     fill_review_path = root / "journal" / "fill_reviews" / f"{as_of}.json"
+    apply_log_paths = [
+        root / "journal" / "apply_logs" / f"{as_of}.dry_run.json",
+        root / "journal" / "apply_logs" / f"{as_of}.apply.json",
+    ]
     manual_report_path = root / "reports" / f"{as_of}.md"
     generated_report_path = root / "reports" / f"{as_of}.generated.md"
 
@@ -93,6 +97,14 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     fill_review = _required_json(fill_review_path, errors)
     if fill_review:
         _audit_fill_review(fill_review, as_of, errors)
+
+    apply_log_path = next((path for path in apply_log_paths if path.exists()), None)
+    if apply_log_path is None:
+        errors.append(f"missing apply log for {as_of}")
+    else:
+        apply_log = _required_json(apply_log_path, errors)
+        if apply_log:
+            _audit_apply_log(apply_log, as_of, errors)
 
     _audit_equity_curve(equity_path, as_of, starting_cash, errors)
     _audit_report(manual_report_path, as_of, errors, warnings)
@@ -223,6 +235,26 @@ def _audit_fill_review(fill_review: dict[str, Any], as_of: str, errors: list[str
             notes = (row or {}).get("notes", "").lower()
             if "not a broker execution" not in notes:
                 errors.append(f"fill review row {idx}: suggested_trade_row must state not a broker execution")
+
+
+def _audit_apply_log(apply_log: dict[str, Any], as_of: str, errors: list[str]) -> None:
+    if apply_log.get("as_of") != as_of:
+        errors.append(f"apply log as_of {apply_log.get('as_of')!r} does not match {as_of}")
+    boundary = apply_log.get("data_boundary", "").lower()
+    if "synthetic paper ledger update only" not in boundary or "no broker" not in boundary:
+        errors.append("apply log must state synthetic/no-broker data boundary")
+    if apply_log.get("mode") not in {"dry_run", "apply"}:
+        errors.append(f"apply log has invalid mode {apply_log.get('mode')!r}")
+    for field in ["candidate_count", "applied_count", "dry_run_append_count", "skipped_existing_count"]:
+        try:
+            value = int(apply_log.get(field))
+        except (TypeError, ValueError):
+            errors.append(f"apply log {field} must be an integer")
+            continue
+        if value < 0:
+            errors.append(f"apply log {field} must be non-negative")
+    if not isinstance(apply_log.get("rows"), list):
+        errors.append("apply log rows must be a list")
 
 
 def _audit_event_risk(event_risk: dict[str, Any], as_of: str, errors: list[str]) -> None:

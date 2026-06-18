@@ -16,6 +16,7 @@ python3 scripts/market_monitor.py --date 2026-06-19
 python3 scripts/event_risk.py --date 2026-06-19
 python3 scripts/performance.py --date 2026-06-19
 python3 scripts/paper_fill.py --date 2026-06-19
+python3 scripts/apply_paper_fills.py --date 2026-06-19
 python3 scripts/audit_monitor.py --date 2026-06-19
 python3 -m unittest discover -s tests
 ```
@@ -27,6 +28,7 @@ python3 -m unittest discover -s tests
 - `data/performance/YYYY-MM-DD.json`
 - `data/equity_curve.csv`
 - `journal/fill_reviews/YYYY-MM-DD.json`
+- `journal/apply_logs/YYYY-MM-DD.dry_run.json`
 - `reports/YYYY-MM-DD.generated.md`
 
 ## 每日流程

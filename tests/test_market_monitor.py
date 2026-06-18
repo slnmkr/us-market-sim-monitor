@@ -135,6 +135,37 @@ class PortfolioMathTests(unittest.TestCase):
         self.assertEqual(len(plans), 1)
         self.assertEqual(plans[0]["symbol"], "SPY")
 
+    def test_planned_orders_skip_existing_fills(self):
+        trades = [
+            {
+                "trade_date": "2026-01-01",
+                "time_et": "09:30",
+                "symbol": "SPY",
+                "side": "buy",
+                "quantity": "1",
+                "price": "100",
+                "notional_usd": "100",
+                "status": "planned",
+                "reason": "test",
+                "sources": "https://example.com",
+                "notes": "Synthetic test",
+            },
+            {
+                "trade_date": "2026-01-01",
+                "time_et": "close",
+                "symbol": "SPY",
+                "side": "buy",
+                "quantity": "1.00000000",
+                "price": "101",
+                "notional_usd": "101",
+                "status": "filled",
+                "reason": "test fill",
+                "sources": "https://example.com",
+                "notes": "Synthetic fill candidate only; not a broker execution.",
+            },
+        ]
+        self.assertEqual(planned_orders(trades), [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -38,6 +38,7 @@ class AuditMonitorTests(unittest.TestCase):
             "config",
             "journal",
             "journal/fill_reviews",
+            "journal/apply_logs",
             "data/event_risk",
             "data/performance",
             "data/market_snapshots",
@@ -135,6 +136,21 @@ class AuditMonitorTests(unittest.TestCase):
                     "data_boundary": "Synthetic paper-fill review only; no broker order, account access, or live execution.",
                     "reviews": [],
                     "summary": {"total": 0},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (root / f"journal/apply_logs/{as_of}.dry_run.json").write_text(
+            json.dumps(
+                {
+                    "as_of": as_of,
+                    "mode": "dry_run",
+                    "data_boundary": "Synthetic paper ledger update only; no broker order, account access, or live execution.",
+                    "candidate_count": 0,
+                    "applied_count": 0,
+                    "dry_run_append_count": 0,
+                    "skipped_existing_count": 0,
+                    "rows": [],
                 }
             ),
             encoding="utf-8",

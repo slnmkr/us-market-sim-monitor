@@ -125,6 +125,11 @@ def mark_to_market(
 
 
 def planned_orders(trades: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    filled_keys = {
+        _planned_fill_key(row)
+        for row in trades
+        if row.get("status") == "filled"
+    }
     return [
         {
             "trade_date": row["trade_date"],
@@ -139,7 +144,24 @@ def planned_orders(trades: list[dict[str, Any]]) -> list[dict[str, Any]]:
         }
         for row in trades
         if row.get("status") == "planned"
+        and _planned_fill_key(row) not in filled_keys
     ]
+
+
+def _planned_fill_key(row: dict[str, Any]) -> tuple[str, str, str, str]:
+    return (
+        row.get("trade_date", "").strip(),
+        row.get("symbol", "").strip().upper(),
+        row.get("side", "").strip().lower(),
+        _numeric_key(row.get("quantity", "")),
+    )
+
+
+def _numeric_key(value: Any) -> str:
+    try:
+        return f"{float(value):.8f}"
+    except (TypeError, ValueError):
+        return str(value)
 
 
 def validate_trades(
@@ -274,4 +296,3 @@ def parse_float(
             errors.append(message)
             return 0.0
         raise ValueError(message) from None
-

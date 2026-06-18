@@ -24,6 +24,8 @@
 - `blocked_stale_quote` means the local quote date does not match the planned trade date.
 - `blocked_gap` means the latest price moved beyond the allowed reference gap.
 - `fill_candidate` means a synthetic fill row can be manually copied into the ledger after review; it is still not a broker execution.
+- Run `python3 scripts/apply_paper_fills.py --date YYYY-MM-DD` to dry-run ledger changes from fill candidates.
+- Only use `python3 scripts/apply_paper_fills.py --date YYYY-MM-DD --apply` after confirming the fill review and source-backed price. The script appends synthetic `filled` rows idempotently and writes an apply log; it never calls a broker.
 
 ## Daily checklist
 
@@ -31,7 +33,7 @@
 2. Record market-moving scheduled events and fresh releases.
 3. Pull quote snapshots and keep the raw JSON.
 4. Generate the paper fill review.
-5. Update `journal/paper_trades.csv` only when a paper fill is justified and source-backed.
+5. Dry-run paper fill application; apply only when a paper fill is justified and source-backed.
 6. Write or regenerate the daily report.
 7. Run tests and audit.
 8. Commit with a message like `daily: 2026-06-19 us market simulation`.
