@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 try:
+    from .event_risk import assess_event_risk, write_event_risk
     from .paper_account import (
         build_portfolio,
         load_trades,
@@ -27,6 +28,7 @@ try:
         validate_trades,
     )
 except ImportError:  # pragma: no cover - used when executed as a script.
+    from event_risk import assess_event_risk, write_event_risk
     from paper_account import (
         build_portfolio,
         load_trades,
@@ -178,6 +180,8 @@ def render_report(as_of: str, snapshot: dict[str, Any], watchlist: dict[str, Any
     upsert_equity_curve(EQUITY_CURVE, as_of, snapshot.get("collected_at", ""), mtm)
     plans = planned_orders(trades)
     events = load_json(EVENTS).get("events", [])
+    risk = assess_event_risk(as_of)
+    write_event_risk(as_of, risk)
 
     lines = [
         f"# Generated US Market Monitor - {as_of}",
@@ -267,6 +271,21 @@ def render_report(as_of: str, snapshot: dict[str, Any], watchlist: dict[str, Any
     else:
         lines.append("Status: `PASS`")
         lines.append("- Synthetic-only paper ledger passed status, source, cash, and exposure checks.")
+
+    lines.extend(["", "## Event Risk", ""])
+    current = risk["current_risk"]
+    lines.append(f"Current risk level: `{current['risk_level']}`")
+    lines.append(f"Max new gross exposure: `{current['max_new_gross_exposure_pct']:.0%}`")
+    for reason in current.get("reasons", []):
+        lines.append(f"- {reason}")
+    for action in current.get("actions", []):
+        lines.append(f"- Action: {action}")
+    lines.extend(["", "| Date | Time ET | Event | Days Until | Risk |", "|---|---:|---|---:|---:|"])
+    for event in risk.get("next_events", []):
+        lines.append(
+            f"| {event['date']} | {event.get('time_et', '')} | {event['event']} | "
+            f"{event['days_until']} | {event['risk_level']} |"
+        )
 
     lines.extend(["", "## Event Register", ""])
     for event in events:

@@ -38,6 +38,7 @@ class AuditMonitorTests(unittest.TestCase):
             "config",
             "journal",
             "journal/fill_reviews",
+            "data/event_risk",
             "data/market_snapshots",
             "data/source_checks",
             "reports",
@@ -88,6 +89,23 @@ class AuditMonitorTests(unittest.TestCase):
         (root / "data/equity_curve.csv").write_text(
             "date,collected_at,cash,positions_value,total_equity,realized_pnl,unrealized_pnl,return_pct,missing_quotes\n"
             f"{as_of},now,100000.00,0.00,100000.00,0.00,0.00,0.0000,\n",
+            encoding="utf-8",
+        )
+        (root / f"data/event_risk/{as_of}.json").write_text(
+            json.dumps(
+                {
+                    "as_of": as_of,
+                    "data_boundary": "Deterministic risk-window assessment from source-backed local event config; no broker or account data.",
+                    "current_risk": {
+                        "risk_level": "normal",
+                        "max_new_gross_exposure_pct": 0.9,
+                        "reasons": ["No active window."],
+                        "actions": [],
+                    },
+                    "next_events": [],
+                    "active_events": [],
+                }
+            ),
             encoding="utf-8",
         )
         (root / f"journal/fill_reviews/{as_of}.json").write_text(

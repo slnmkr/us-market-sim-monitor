@@ -13,6 +13,7 @@
 
 ```bash
 python3 scripts/market_monitor.py --date 2026-06-19
+python3 scripts/event_risk.py --date 2026-06-19
 python3 scripts/paper_fill.py --date 2026-06-19
 python3 scripts/audit_monitor.py --date 2026-06-19
 python3 -m unittest discover -s tests
@@ -21,6 +22,7 @@ python3 -m unittest discover -s tests
 输出会写入：
 
 - `data/market_snapshots/YYYY-MM-DD.json`
+- `data/event_risk/YYYY-MM-DD.json`
 - `data/equity_curve.csv`
 - `journal/fill_reviews/YYYY-MM-DD.json`
 - `reports/YYYY-MM-DD.generated.md`

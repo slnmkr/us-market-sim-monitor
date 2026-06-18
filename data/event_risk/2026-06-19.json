@@ -1,0 +1,55 @@
+{
+  "active_events": [
+    {
+      "action": "No paper fills or new paper entries on the closed-market date.",
+      "date": "2026-06-19",
+      "days_until": 0,
+      "event": "NYSE closed for Juneteenth National Independence Day",
+      "max_new_gross_exposure_pct": 0.0,
+      "risk_label": "market_holiday",
+      "risk_level": "closed",
+      "source": "https://www.nyse.com/trade/hours-calendars",
+      "status": "market_holiday",
+      "time_et": "all_day"
+    }
+  ],
+  "as_of": "2026-06-19",
+  "current_risk": {
+    "actions": [
+      "No paper fills or new paper entries on the closed-market date."
+    ],
+    "max_new_gross_exposure_pct": 0.0,
+    "reasons": [
+      "NYSE closed for Juneteenth National Independence Day (2026-06-19, days_until=0)"
+    ],
+    "risk_level": "closed"
+  },
+  "data_boundary": "Deterministic risk-window assessment from source-backed local event config; no broker or account data.",
+  "generated_at_utc": "2026-06-18T23:04:45Z",
+  "next_events": [
+    {
+      "action": "No paper fills or new paper entries on the closed-market date.",
+      "date": "2026-06-19",
+      "days_until": 0,
+      "event": "NYSE closed for Juneteenth National Independence Day",
+      "max_new_gross_exposure_pct": 0.0,
+      "risk_label": "market_holiday",
+      "risk_level": "closed",
+      "source": "https://www.nyse.com/trade/hours-calendars",
+      "status": "market_holiday",
+      "time_et": "all_day"
+    },
+    {
+      "action": "Reduce discretionary new exposure and require explicit revalidation before and after payrolls.",
+      "date": "2026-07-02",
+      "days_until": 13,
+      "event": "Employment Situation - June 2026",
+      "max_new_gross_exposure_pct": 0.65,
+      "risk_label": "nonfarm_payroll",
+      "risk_level": "high",
+      "source": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "status": "scheduled",
+      "time_et": "08:30"
+    }
+  ]
+}

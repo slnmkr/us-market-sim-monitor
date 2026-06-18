@@ -54,6 +54,7 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     equity_path = root / "data" / "equity_curve.csv"
     snapshot_path = root / "data" / "market_snapshots" / f"{as_of}.json"
     source_path = root / "data" / "source_checks" / f"{as_of}.json"
+    event_risk_path = root / "data" / "event_risk" / f"{as_of}.json"
     fill_review_path = root / "journal" / "fill_reviews" / f"{as_of}.json"
     manual_report_path = root / "reports" / f"{as_of}.md"
     generated_report_path = root / "reports" / f"{as_of}.generated.md"
@@ -79,6 +80,10 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     source_check = _required_json(source_path, errors)
     if source_check:
         _audit_source_check(source_check, as_of, errors)
+
+    event_risk = _required_json(event_risk_path, errors)
+    if event_risk:
+        _audit_event_risk(event_risk, as_of, errors)
 
     fill_review = _required_json(fill_review_path, errors)
     if fill_review:
@@ -213,6 +218,29 @@ def _audit_fill_review(fill_review: dict[str, Any], as_of: str, errors: list[str
             notes = (row or {}).get("notes", "").lower()
             if "not a broker execution" not in notes:
                 errors.append(f"fill review row {idx}: suggested_trade_row must state not a broker execution")
+
+
+def _audit_event_risk(event_risk: dict[str, Any], as_of: str, errors: list[str]) -> None:
+    if event_risk.get("as_of") != as_of:
+        errors.append(f"event risk as_of {event_risk.get('as_of')!r} does not match {as_of}")
+    boundary = event_risk.get("data_boundary", "").lower()
+    if "no broker" not in boundary or "source-backed local event config" not in boundary:
+        errors.append("event risk must state local source-backed/no-broker data boundary")
+    current = event_risk.get("current_risk")
+    if not isinstance(current, dict):
+        errors.append("event risk current_risk must be an object")
+        return
+    if current.get("risk_level") not in {"normal", "medium", "high", "closed"}:
+        errors.append(f"event risk has invalid risk_level {current.get('risk_level')!r}")
+    try:
+        cap = float(current.get("max_new_gross_exposure_pct"))
+    except (TypeError, ValueError):
+        errors.append("event risk max_new_gross_exposure_pct must be numeric")
+        return
+    if not 0.0 <= cap <= 1.0:
+        errors.append("event risk max_new_gross_exposure_pct must be between 0 and 1")
+    if not isinstance(event_risk.get("next_events"), list):
+        errors.append("event risk next_events must be a list")
 
 
 def _audit_report(path: Path, as_of: str, errors: list[str], warnings: list[str]) -> None:

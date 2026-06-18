@@ -1,0 +1,38 @@
+{
+  "source_policy": "Risk windows are deterministic policy rules applied to source-backed economic events. They are not predictions.",
+  "default": {
+    "risk_level": "normal",
+    "max_new_gross_exposure_pct": 0.9,
+    "note": "No active high-impact macro window."
+  },
+  "policies": [
+    {
+      "match": {"status": "market_holiday"},
+      "label": "market_holiday",
+      "risk_level": "closed",
+      "pre_days": 0,
+      "post_days": 0,
+      "max_new_gross_exposure_pct": 0.0,
+      "action": "No paper fills or new paper entries on the closed-market date."
+    },
+    {
+      "match": {"event_contains": "Employment Situation"},
+      "label": "nonfarm_payroll",
+      "risk_level": "high",
+      "pre_days": 3,
+      "post_days": 1,
+      "max_new_gross_exposure_pct": 0.65,
+      "action": "Reduce discretionary new exposure and require explicit revalidation before and after payrolls."
+    },
+    {
+      "match": {"event_contains": "FOMC"},
+      "label": "fomc",
+      "risk_level": "high",
+      "pre_days": 2,
+      "post_days": 1,
+      "max_new_gross_exposure_pct": 0.65,
+      "action": "Avoid leverage and large new directional exposure around the rate decision."
+    }
+  ]
+}
+
