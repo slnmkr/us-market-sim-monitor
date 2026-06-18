@@ -1,4 +1,5 @@
 .PHONY: report test
+.PHONY: validate
 
 DATE ?= $(shell date +%F)
 
@@ -8,3 +9,4 @@ report:
 test:
 	python3 -m unittest discover -s tests
 
+validate: report test

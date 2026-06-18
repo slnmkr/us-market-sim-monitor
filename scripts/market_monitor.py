@@ -8,16 +8,33 @@ connects to a broker and never sends orders.
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import math
 import sys
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+try:
+    from .paper_account import (
+        build_portfolio,
+        load_trades,
+        mark_to_market,
+        planned_orders,
+        upsert_equity_curve,
+        validate_trades,
+    )
+except ImportError:  # pragma: no cover - used when executed as a script.
+    from paper_account import (
+        build_portfolio,
+        load_trades,
+        mark_to_market,
+        planned_orders,
+        upsert_equity_curve,
+        validate_trades,
+    )
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,13 +43,7 @@ EVENTS = ROOT / "config" / "economic_events.json"
 TRADES = ROOT / "journal" / "paper_trades.csv"
 SNAPSHOTS = ROOT / "data" / "market_snapshots"
 REPORTS = ROOT / "reports"
-
-
-@dataclass
-class Position:
-    symbol: str
-    quantity: float = 0.0
-    cost_basis: float = 0.0
+EQUITY_CURVE = ROOT / "data" / "equity_curve.csv"
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -130,62 +141,6 @@ def quote_summary(snapshot: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return out
 
 
-def load_trades(path: Path = TRADES) -> list[dict[str, Any]]:
-    with path.open("r", encoding="utf-8", newline="") as fh:
-        return list(csv.DictReader(fh))
-
-
-def build_portfolio(trades: list[dict[str, Any]], starting_cash: float) -> dict[str, Any]:
-    cash = float(starting_cash)
-    positions: dict[str, Position] = {}
-
-    for trade in trades:
-        if trade.get("status") != "filled":
-            continue
-        symbol = trade["symbol"].strip().upper()
-        if symbol == "CASH":
-            continue
-        side = trade["side"].strip().lower()
-        qty = float(trade["quantity"] or 0)
-        price = float(trade["price"] or 0)
-        notional = float(trade["notional_usd"] or (qty * price))
-        pos = positions.setdefault(symbol, Position(symbol=symbol))
-        if side == "buy":
-            pos.quantity += qty
-            pos.cost_basis += notional
-            cash -= notional
-        elif side == "sell":
-            pos.quantity -= qty
-            pos.cost_basis -= min(pos.cost_basis, notional)
-            cash += notional
-        else:
-            raise ValueError(f"Unsupported filled trade side: {side}")
-
-    return {"cash": cash, "positions": positions}
-
-
-def mark_to_market(portfolio: dict[str, Any], quotes: dict[str, dict[str, Any]]) -> dict[str, Any]:
-    rows = []
-    total = portfolio["cash"]
-    for symbol, pos in sorted(portfolio["positions"].items()):
-        close = quotes.get(symbol, {}).get("close")
-        market_value = pos.quantity * close if close is not None else None
-        unrealized = market_value - pos.cost_basis if market_value is not None else None
-        if market_value is not None:
-            total += market_value
-        rows.append(
-            {
-                "symbol": symbol,
-                "quantity": pos.quantity,
-                "cost_basis": pos.cost_basis,
-                "close": close,
-                "market_value": market_value,
-                "unrealized_pnl": unrealized,
-            }
-        )
-    return {"cash": portfolio["cash"], "positions": rows, "total_equity": total}
-
-
 def write_snapshot(as_of: str, watchlist: dict[str, Any]) -> dict[str, Any]:
     SNAPSHOTS.mkdir(parents=True, exist_ok=True)
     snapshot = {
@@ -215,9 +170,13 @@ def write_snapshot(as_of: str, watchlist: dict[str, Any]) -> dict[str, Any]:
 def render_report(as_of: str, snapshot: dict[str, Any], watchlist: dict[str, Any]) -> Path:
     REPORTS.mkdir(parents=True, exist_ok=True)
     quotes = quote_summary(snapshot)
-    trades = load_trades()
+    trades = load_trades(TRADES)
     account = watchlist["paper_account"]
-    mtm = mark_to_market(build_portfolio(trades, account["starting_cash"]), quotes)
+    starting_cash = float(account["starting_cash"])
+    rule_errors = validate_trades(trades, starting_cash)
+    mtm = mark_to_market(build_portfolio(trades, starting_cash), quotes, starting_cash)
+    upsert_equity_curve(EQUITY_CURVE, as_of, snapshot.get("collected_at", ""), mtm)
+    plans = planned_orders(trades)
     events = load_json(EVENTS).get("events", [])
 
     lines = [
@@ -252,9 +211,11 @@ def render_report(as_of: str, snapshot: dict[str, Any], watchlist: dict[str, Any
             "",
             "## Paper Account Mark-to-Market",
             "",
-            f"Starting cash: `${account['starting_cash']:,.2f}`",
+            f"Starting cash: `${starting_cash:,.2f}`",
             f"Current cash from filled trades: `${mtm['cash']:,.2f}`",
+            f"Positions value from filled trades: `${mtm['positions_value']:,.2f}`",
             f"Total equity from filled trades: `${mtm['total_equity']:,.2f}`",
+            f"Total return from filled trades: `{mtm['return_pct']:,.4f}%`",
             "",
             "| Symbol | Quantity | Cost Basis | Close | Market Value | Unrealized PnL |",
             "|---|---:|---:|---:|---:|---:|",
@@ -273,6 +234,39 @@ def render_report(as_of: str, snapshot: dict[str, Any], watchlist: dict[str, Any
                 pnl=_fmt(row["unrealized_pnl"]),
             )
         )
+
+    lines.extend(
+        [
+            "",
+            "## Planned Paper Orders",
+            "",
+            "| Date | Time ET | Symbol | Side | Quantity | Reference Price | Notional |",
+            "|---|---:|---|---:|---:|---:|---:|",
+        ]
+    )
+    if not plans:
+        lines.append("| none | n/a | n/a | n/a | 0 | n/a | 0.00 |")
+    for row in plans:
+        lines.append(
+            "| {date} | {time} | {symbol} | {side} | {qty:.4f} | {price} | {notional} |".format(
+                date=row["trade_date"],
+                time=row["time_et"],
+                symbol=row["symbol"],
+                side=row["side"],
+                qty=row["quantity"],
+                price=_fmt(row["price"]),
+                notional=_fmt(row["notional_usd"]),
+            )
+        )
+
+    lines.extend(["", "## Rule Check", ""])
+    if rule_errors:
+        lines.append("Status: `FAIL`")
+        for err in rule_errors:
+            lines.append(f"- {err}")
+    else:
+        lines.append("Status: `PASS`")
+        lines.append("- Synthetic-only paper ledger passed status, source, cash, and exposure checks.")
 
     lines.extend(["", "## Event Register", ""])
     for event in events:
@@ -319,4 +313,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -1,0 +1,58 @@
+{
+  "as_of": "2026-06-19",
+  "collected_at_utc": "2026-06-18T22:54:49Z",
+  "collected_at_local": "2026-06-19T06:54:49+0800",
+  "data_boundary": "Real public web sources only. No broker account, paid feed, login-only page, token, or cookie was used.",
+  "checks": [
+    {
+      "topic": "market_holiday",
+      "source_name": "NYSE Holidays & Trading Hours",
+      "source_url": "https://www.nyse.com/trade/hours-calendars",
+      "facts": [
+        "NYSE lists Friday, June 19, 2026 as the Juneteenth National Independence Day market holiday."
+      ],
+      "paper_account_impact": "No paper fills are allowed for 2026-06-19; ledger keeps a no_trade row."
+    },
+    {
+      "topic": "latest_us_equity_close",
+      "source_name": "Associated Press market close",
+      "source_url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-411ec68891aa5dc7d7f684e0305e2aa3",
+      "facts": [
+        "For Thursday, June 18, 2026, AP reported higher closes for the S&P 500, Nasdaq Composite, Dow Jones Industrial Average, and Russell 2000.",
+        "The AP summary attributed the rebound to stocks recovering most of the prior session's decline, easing Treasury yields, and oil price movement after the US-Iran agreement."
+      ],
+      "paper_account_impact": "The Monday plan keeps broad ETF exposure only, with QQQ and IWM sized below SPY because the setup depends on risk-on continuation."
+    },
+    {
+      "topic": "fomc",
+      "source_name": "Federal Reserve FOMC statement",
+      "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+      "facts": [
+        "The FOMC maintained the federal funds target range at 3.5% to 3.75% on June 17, 2026.",
+        "The statement kept inflation risk in focus by describing inflation as elevated relative to the 2% objective."
+      ],
+      "paper_account_impact": "No leverage, no options, and a TLT hedge remain appropriate until inflation and rate-risk signals improve."
+    },
+    {
+      "topic": "nonfarm_payroll_latest",
+      "source_name": "BLS Employment Situation - May 2026",
+      "source_url": "https://www.bls.gov/news.release/empsit.nr0.htm",
+      "facts": [
+        "The May 2026 Employment Situation reported a 172,000 increase in total nonfarm payroll employment.",
+        "The unemployment rate was 4.3%.",
+        "March and April payroll estimates were revised upward by a combined 93,000."
+      ],
+      "paper_account_impact": "Labor data still supports a soft-landing/risk-on case, but the Fed/inflation node prevents aggressive sizing."
+    },
+    {
+      "topic": "nonfarm_payroll_next",
+      "source_name": "BLS Employment Situation release schedule",
+      "source_url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "facts": [
+        "BLS schedules the June 2026 Employment Situation for Thursday, July 2, 2026 at 08:30 ET."
+      ],
+      "paper_account_impact": "The paper account must reduce new discretionary risk or explicitly revalidate exposure before the July 2 release."
+    }
+  ]
+}
+
