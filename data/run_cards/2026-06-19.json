@@ -1,7 +1,7 @@
 {
   "as_of": "2026-06-19",
   "data_boundary": "Local run card from public-source paper-monitor artifacts only; no broker connection, no secrets, no account access, no live orders.",
-  "generated_at_utc": "2026-06-18T23:18:05+00:00",
+  "generated_at_utc": "2026-06-18T23:22:49+00:00",
   "live_gate": {
     "blocker_codes": [
       "insufficient_paper_observations",
@@ -39,6 +39,14 @@
         "event": "Employment Situation - June 2026",
         "risk_level": "high",
         "source": "https://www.bls.gov/schedule/news_release/empsit.htm",
+        "time_et": "08:30"
+      },
+      {
+        "date": "2026-07-14",
+        "days_until": 25,
+        "event": "Consumer Price Index - June 2026",
+        "risk_level": "high",
+        "source": "https://www.bls.gov/schedule/news_release/cpi.htm",
         "time_et": "08:30"
       }
     ],
@@ -87,13 +95,14 @@
     }
   },
   "source_check": {
-    "check_count": 5,
+    "check_count": 6,
     "topics": [
       "market_holiday",
       "latest_us_equity_close",
       "fomc",
       "nonfarm_payroll_latest",
-      "nonfarm_payroll_next"
+      "nonfarm_payroll_next",
+      "cpi_next"
     ]
   }
 }

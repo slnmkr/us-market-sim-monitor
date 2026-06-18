@@ -176,7 +176,7 @@ def _audit_source_check(source_check: dict[str, Any], as_of: str, errors: list[s
         errors.append("source check must contain at least one check")
         return
     topics = {item.get("topic") for item in checks}
-    for required in {"market_holiday", "latest_us_equity_close", "fomc", "nonfarm_payroll_next"}:
+    for required in {"market_holiday", "latest_us_equity_close", "fomc", "nonfarm_payroll_next", "cpi_next"}:
         if required not in topics:
             errors.append(f"source check missing required topic {required}")
     for idx, item in enumerate(checks, start=1):

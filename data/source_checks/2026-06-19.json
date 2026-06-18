@@ -1,7 +1,7 @@
 {
   "as_of": "2026-06-19",
-  "collected_at_utc": "2026-06-18T22:54:49Z",
-  "collected_at_local": "2026-06-19T06:54:49+0800",
+  "collected_at_utc": "2026-06-18T23:21:45Z",
+  "collected_at_local": "2026-06-19T07:21:45+0800",
   "data_boundary": "Real public web sources only. No broker account, paid feed, login-only page, token, or cookie was used.",
   "checks": [
     {
@@ -52,7 +52,15 @@
         "BLS schedules the June 2026 Employment Situation for Thursday, July 2, 2026 at 08:30 ET."
       ],
       "paper_account_impact": "The paper account must reduce new discretionary risk or explicitly revalidate exposure before the July 2 release."
+    },
+    {
+      "topic": "cpi_next",
+      "source_name": "BLS Consumer Price Index release schedule",
+      "source_url": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "facts": [
+        "BLS schedules the June 2026 Consumer Price Index for Tuesday, July 14, 2026 at 08:30 ET."
+      ],
+      "paper_account_impact": "The paper account must revalidate inflation and rate-risk exposure before the July 14 CPI release, especially QQQ and TLT sizing."
     }
   ]
 }
-

@@ -23,6 +23,14 @@ class EventRiskTests(unittest.TestCase):
             self.assertEqual(payload["current_risk"]["max_new_gross_exposure_pct"], 0.65)
             self.assertTrue(any(item["risk_label"] == "nonfarm_payroll" for item in payload["active_events"]))
 
+    def test_cpi_window_is_high_risk_before_release(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            events, policy = self._write_inputs(Path(tmp))
+            payload = assess_event_risk("2026-07-13", events_path=events, policy_path=policy)
+            self.assertEqual(payload["current_risk"]["risk_level"], "high")
+            self.assertEqual(payload["current_risk"]["max_new_gross_exposure_pct"], 0.65)
+            self.assertTrue(any(item["risk_label"] == "cpi" for item in payload["active_events"]))
+
     def test_normal_when_no_window_is_active(self):
         with tempfile.TemporaryDirectory() as tmp:
             events, policy = self._write_inputs(Path(tmp))
@@ -50,6 +58,13 @@ class EventRiskTests(unittest.TestCase):
                             "event": "Employment Situation - June 2026",
                             "status": "scheduled",
                             "source": "https://example.com/nfp",
+                        },
+                        {
+                            "date": "2026-07-14",
+                            "time_et": "08:30",
+                            "event": "Consumer Price Index - June 2026",
+                            "status": "scheduled",
+                            "source": "https://example.com/cpi",
                         },
                     ]
                 }
@@ -83,6 +98,15 @@ class EventRiskTests(unittest.TestCase):
                             "max_new_gross_exposure_pct": 0.65,
                             "action": "reduce",
                         },
+                        {
+                            "match": {"event_contains": "Consumer Price Index"},
+                            "label": "cpi",
+                            "risk_level": "high",
+                            "pre_days": 2,
+                            "post_days": 1,
+                            "max_new_gross_exposure_pct": 0.65,
+                            "action": "reduce inflation risk",
+                        },
                     ],
                 }
             ),
@@ -93,4 +117,3 @@ class EventRiskTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

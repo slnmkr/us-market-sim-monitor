@@ -47,7 +47,17 @@
       ],
       "source": "https://www.bls.gov/schedule/news_release/empsit.htm",
       "collected_at": "2026-06-19T00:00:00+08:00"
+    },
+    {
+      "date": "2026-07-14",
+      "time_et": "08:30",
+      "event": "Consumer Price Index - June 2026",
+      "status": "scheduled",
+      "facts": [
+        "The June 2026 Consumer Price Index is scheduled for Tuesday, July 14, 2026 at 08:30 ET."
+      ],
+      "source": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "collected_at": "2026-06-19T07:21:45+08:00"
     }
   ]
 }
-

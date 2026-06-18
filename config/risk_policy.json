@@ -25,6 +25,15 @@
       "action": "Reduce discretionary new exposure and require explicit revalidation before and after payrolls."
     },
     {
+      "match": {"event_contains": "Consumer Price Index"},
+      "label": "cpi",
+      "risk_level": "high",
+      "pre_days": 2,
+      "post_days": 1,
+      "max_new_gross_exposure_pct": 0.65,
+      "action": "Reduce discretionary new exposure and require inflation-risk revalidation before and after CPI."
+    },
+    {
       "match": {"event_contains": "FOMC"},
       "label": "fomc",
       "risk_level": "high",
@@ -35,4 +44,3 @@
     }
   ]
 }
-

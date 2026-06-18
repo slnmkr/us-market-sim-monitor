@@ -25,7 +25,7 @@
     "risk_level": "closed"
   },
   "data_boundary": "Deterministic risk-window assessment from source-backed local event config; no broker or account data.",
-  "generated_at_utc": "2026-06-18T23:18:05Z",
+  "generated_at_utc": "2026-06-18T23:22:49Z",
   "next_events": [
     {
       "action": "No paper fills or new paper entries on the closed-market date.",
@@ -48,6 +48,18 @@
       "risk_label": "nonfarm_payroll",
       "risk_level": "high",
       "source": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "status": "scheduled",
+      "time_et": "08:30"
+    },
+    {
+      "action": "Reduce discretionary new exposure and require inflation-risk revalidation before and after CPI.",
+      "date": "2026-07-14",
+      "days_until": 25,
+      "event": "Consumer Price Index - June 2026",
+      "max_new_gross_exposure_pct": 0.65,
+      "risk_label": "cpi",
+      "risk_level": "high",
+      "source": "https://www.bls.gov/schedule/news_release/cpi.htm",
       "status": "scheduled",
       "time_et": "08:30"
     }
