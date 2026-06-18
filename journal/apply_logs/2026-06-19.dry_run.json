@@ -4,7 +4,7 @@
   "candidate_count": 0,
   "data_boundary": "Synthetic paper ledger update only; no broker order, account access, or live execution.",
   "dry_run_append_count": 0,
-  "generated_at_utc": "2026-06-18T23:31:52+00:00",
+  "generated_at_utc": "2026-06-18T23:34:25+00:00",
   "mode": "dry_run",
   "review_path": "/Users/tuaozhang/zhangta/repo/us-market-sim-monitor/journal/fill_reviews/2026-06-19.json",
   "rows": [],

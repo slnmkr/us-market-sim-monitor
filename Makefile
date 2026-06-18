@@ -6,6 +6,8 @@
 .PHONY: apply-fills
 .PHONY: live-gate
 .PHONY: run-card
+.PHONY: daily-run
+.PHONY: daily-commit
 
 DATE ?= $(shell date +%F)
 
@@ -35,3 +37,9 @@ run-card: live-gate apply-fills performance risk
 
 validate: run-card test
 	python3 scripts/audit_monitor.py --date $(DATE)
+
+daily-run:
+	python3 scripts/daily_run.py --date $(DATE)
+
+daily-commit:
+	python3 scripts/daily_run.py --date $(DATE) --commit

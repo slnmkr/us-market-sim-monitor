@@ -19,7 +19,7 @@
     }
   ],
   "data_boundary": "Local live-account preflight only; no broker connection, no secrets, no account access, no live orders.",
-  "generated_at_utc": "2026-06-18T23:31:52+00:00",
+  "generated_at_utc": "2026-06-18T23:34:25+00:00",
   "git": {
     "has_remote": false,
     "identity": {

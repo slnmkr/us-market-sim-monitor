@@ -22,6 +22,7 @@ python3 scripts/live_account_gate.py --date 2026-06-19
 python3 scripts/run_card.py --date 2026-06-19
 python3 scripts/audit_monitor.py --date 2026-06-19
 python3 -m unittest discover -s tests
+python3 scripts/daily_run.py --date 2026-06-19
 ```
 
 输出会写入：
@@ -43,7 +44,7 @@ python3 -m unittest discover -s tests
 3. 生成 paper fill review；只有报价新鲜、跳空合格、宏观风险门控合格时才产生 `fill_candidate`。
 4. 更新模拟盘交易账本，只记录纸面操作。
 5. 写入报告：事实、来源、分析、风险、下一步动作。
-6. 运行测试并用 git 提交。
+6. 运行测试并用 git 提交；可用 `python3 scripts/daily_run.py --date YYYY-MM-DD --commit` 只提交当天生成产物。
 
 ## 参考仓库吸收点
 
