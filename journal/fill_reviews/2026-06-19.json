@@ -1,0 +1,60 @@
+{
+  "as_of": "2026-06-19",
+  "data_boundary": "Synthetic paper-fill review only; no broker order, account access, or live execution.",
+  "max_gap_pct": 1.5,
+  "reviews": [
+    {
+      "as_of": "2026-06-19",
+      "decision": "pending_future",
+      "planned_trade_date": "2026-06-22",
+      "quantity": 53.0,
+      "reason": "planned trade date 2026-06-22 is after review date 2026-06-19",
+      "reference_notional": 39577.22,
+      "reference_price": 746.74,
+      "side": "buy",
+      "source": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-411ec68891aa5dc7d7f684e0305e2aa3",
+      "symbol": "SPY"
+    },
+    {
+      "as_of": "2026-06-19",
+      "decision": "pending_future",
+      "planned_trade_date": "2026-06-22",
+      "quantity": 27.0,
+      "reason": "planned trade date 2026-06-22 is after review date 2026-06-19",
+      "reference_notional": 19996.74,
+      "reference_price": 740.62,
+      "side": "buy",
+      "source": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+      "symbol": "QQQ"
+    },
+    {
+      "as_of": "2026-06-19",
+      "decision": "pending_future",
+      "planned_trade_date": "2026-06-22",
+      "quantity": 33.0,
+      "reason": "planned trade date 2026-06-22 is after review date 2026-06-19",
+      "reference_notional": 9754.47,
+      "reference_price": 295.59,
+      "side": "buy",
+      "source": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-411ec68891aa5dc7d7f684e0305e2aa3",
+      "symbol": "IWM"
+    },
+    {
+      "as_of": "2026-06-19",
+      "decision": "pending_future",
+      "planned_trade_date": "2026-06-22",
+      "quantity": 230.0,
+      "reason": "planned trade date 2026-06-22 is after review date 2026-06-19",
+      "reference_notional": 19952.5,
+      "reference_price": 86.75,
+      "side": "buy",
+      "source": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-411ec68891aa5dc7d7f684e0305e2aa3",
+      "symbol": "TLT"
+    }
+  ],
+  "snapshot": "/Users/tuaozhang/zhangta/repo/us-market-sim-monitor/data/market_snapshots/2026-06-19.json",
+  "summary": {
+    "pending_future": 4,
+    "total": 4
+  }
+}

@@ -37,6 +37,7 @@ class AuditMonitorTests(unittest.TestCase):
         for rel in [
             "config",
             "journal",
+            "journal/fill_reviews",
             "data/market_snapshots",
             "data/source_checks",
             "reports",
@@ -89,6 +90,17 @@ class AuditMonitorTests(unittest.TestCase):
             f"{as_of},now,100000.00,0.00,100000.00,0.00,0.00,0.0000,\n",
             encoding="utf-8",
         )
+        (root / f"journal/fill_reviews/{as_of}.json").write_text(
+            json.dumps(
+                {
+                    "as_of": as_of,
+                    "data_boundary": "Synthetic paper-fill review only; no broker order, account access, or live execution.",
+                    "reviews": [],
+                    "summary": {"total": 0},
+                }
+            ),
+            encoding="utf-8",
+        )
         for suffix in [".md", ".generated.md"]:
             (root / f"reports/{as_of}{suffix}").write_text(
                 f"# Report {as_of}\n\nNo broker access. Paper account only. source: https://example.com\n",
@@ -106,4 +118,3 @@ class AuditMonitorTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

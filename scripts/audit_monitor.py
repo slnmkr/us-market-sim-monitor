@@ -54,6 +54,7 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     equity_path = root / "data" / "equity_curve.csv"
     snapshot_path = root / "data" / "market_snapshots" / f"{as_of}.json"
     source_path = root / "data" / "source_checks" / f"{as_of}.json"
+    fill_review_path = root / "journal" / "fill_reviews" / f"{as_of}.json"
     manual_report_path = root / "reports" / f"{as_of}.md"
     generated_report_path = root / "reports" / f"{as_of}.generated.md"
 
@@ -78,6 +79,10 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     source_check = _required_json(source_path, errors)
     if source_check:
         _audit_source_check(source_check, as_of, errors)
+
+    fill_review = _required_json(fill_review_path, errors)
+    if fill_review:
+        _audit_fill_review(fill_review, as_of, errors)
 
     _audit_equity_curve(equity_path, as_of, starting_cash, errors)
     _audit_report(manual_report_path, as_of, errors, warnings)
@@ -176,6 +181,40 @@ def _audit_equity_curve(path: Path, as_of: str, starting_cash: float, errors: li
             errors.append(f"equity curve {as_of}: return_pct is inconsistent with total_equity")
 
 
+def _audit_fill_review(fill_review: dict[str, Any], as_of: str, errors: list[str]) -> None:
+    if fill_review.get("as_of") != as_of:
+        errors.append(f"fill review as_of {fill_review.get('as_of')!r} does not match {as_of}")
+    boundary = fill_review.get("data_boundary", "").lower()
+    if "synthetic paper-fill review only" not in boundary:
+        errors.append("fill review must state synthetic paper-fill-only data boundary")
+    reviews = fill_review.get("reviews")
+    if not isinstance(reviews, list):
+        errors.append("fill review reviews must be a list")
+        return
+    allowed = {
+        "pending_future",
+        "stale_unfilled",
+        "blocked_missing_quote",
+        "blocked_stale_quote",
+        "blocked_missing_price",
+        "blocked_gap",
+        "fill_candidate",
+    }
+    for idx, review in enumerate(reviews, start=1):
+        decision = review.get("decision")
+        if decision not in allowed:
+            errors.append(f"fill review row {idx}: invalid decision {decision!r}")
+        if decision == "fill_candidate":
+            row = review.get("suggested_trade_row")
+            if not isinstance(row, dict):
+                errors.append(f"fill review row {idx}: fill_candidate missing suggested_trade_row")
+            elif row.get("status") != "filled":
+                errors.append(f"fill review row {idx}: suggested_trade_row status must be filled")
+            notes = (row or {}).get("notes", "").lower()
+            if "not a broker execution" not in notes:
+                errors.append(f"fill review row {idx}: suggested_trade_row must state not a broker execution")
+
+
 def _audit_report(path: Path, as_of: str, errors: list[str], warnings: list[str]) -> None:
     if not path.exists():
         errors.append(f"missing report {path}")
@@ -223,4 +262,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

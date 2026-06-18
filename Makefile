@@ -1,5 +1,6 @@
 .PHONY: report test
 .PHONY: validate
+.PHONY: fills
 
 DATE ?= $(shell date +%F)
 
@@ -9,5 +10,8 @@ report:
 test:
 	python3 -m unittest discover -s tests
 
-validate: report test
+fills: report
+	python3 scripts/paper_fill.py --date $(DATE)
+
+validate: fills test
 	python3 scripts/audit_monitor.py --date $(DATE)
