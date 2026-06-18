@@ -10,3 +10,4 @@ test:
 	python3 -m unittest discover -s tests
 
 validate: report test
+	python3 scripts/audit_monitor.py --date $(DATE)

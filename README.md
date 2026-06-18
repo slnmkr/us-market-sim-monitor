@@ -13,12 +13,14 @@
 
 ```bash
 python3 scripts/market_monitor.py --date 2026-06-19
+python3 scripts/audit_monitor.py --date 2026-06-19
 python3 -m unittest discover -s tests
 ```
 
 输出会写入：
 
 - `data/market_snapshots/YYYY-MM-DD.json`
+- `data/equity_curve.csv`
 - `reports/YYYY-MM-DD.generated.md`
 
 ## 每日流程
@@ -33,4 +35,3 @@ python3 -m unittest discover -s tests
 
 - `ZhuLinsen/daily_stock_analysis`：采用“每日报告 + 数据源 + 交易纪律”的工作流形态。
 - `HKUDS/Vibe-Trading`：采用 paper/live 分离、kill switch、order gate、run card 这类安全边界思想。
-
