@@ -228,6 +228,11 @@ def _audit_fill_review(fill_review: dict[str, Any], as_of: str, errors: list[str
     boundary = fill_review.get("data_boundary", "").lower()
     if "synthetic paper-fill review only" not in boundary:
         errors.append("fill review must state synthetic paper-fill-only data boundary")
+    risk_gate = fill_review.get("risk_gate")
+    if not isinstance(risk_gate, dict):
+        errors.append("fill review risk_gate must be an object")
+    elif risk_gate.get("status") != "ok":
+        errors.append(f"fill review risk_gate status is not ok: {risk_gate.get('status')!r}")
     reviews = fill_review.get("reviews")
     if not isinstance(reviews, list):
         errors.append("fill review reviews must be a list")
@@ -239,6 +244,8 @@ def _audit_fill_review(fill_review: dict[str, Any], as_of: str, errors: list[str
         "blocked_stale_quote",
         "blocked_missing_price",
         "blocked_gap",
+        "blocked_event_risk",
+        "blocked_missing_event_risk",
         "fill_candidate",
     }
     for idx, review in enumerate(reviews, start=1):

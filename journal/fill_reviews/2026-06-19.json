@@ -1,6 +1,7 @@
 {
   "as_of": "2026-06-19",
   "data_boundary": "Synthetic paper-fill review only; no broker order, account access, or live execution.",
+  "event_risk": "/Users/tuaozhang/zhangta/repo/us-market-sim-monitor/data/event_risk/2026-06-19.json",
   "max_gap_pct": 1.5,
   "reviews": [
     {
@@ -52,6 +53,20 @@
       "symbol": "TLT"
     }
   ],
+  "risk_gate": {
+    "actions": [
+      "No paper fills or new paper entries on the closed-market date."
+    ],
+    "event_risk_path": "/Users/tuaozhang/zhangta/repo/us-market-sim-monitor/data/event_risk/2026-06-19.json",
+    "max_new_gross_exposure_pct": 0.0,
+    "max_new_gross_exposure_usd": 0.0,
+    "reasons": [
+      "NYSE closed for Juneteenth National Independence Day (2026-06-19, days_until=0)"
+    ],
+    "risk_level": "closed",
+    "starting_cash": 100000.0,
+    "status": "ok"
+  },
   "snapshot": "/Users/tuaozhang/zhangta/repo/us-market-sim-monitor/data/market_snapshots/2026-06-19.json",
   "summary": {
     "pending_future": 4,

@@ -24,7 +24,10 @@
 - `pending_future` means the planned trade date has not arrived.
 - `blocked_stale_quote` means the local quote date does not match the planned trade date.
 - `blocked_gap` means the latest price moved beyond the allowed reference gap.
+- `blocked_missing_event_risk` means the local macro risk artifact is missing or mismatched, so no same-day synthetic fill can be considered.
+- `blocked_event_risk` means the market is closed, the macro risk window forbids fills, or the candidate set exceeds the current event-risk gross-exposure cap.
 - `fill_candidate` means a synthetic fill row can be manually copied into the ledger after review; it is still not a broker execution.
+- The `risk_gate` object in each fill review records the event-risk file, risk level, max new gross exposure, and source-backed reasons used by the pre-trade gate.
 - Run `python3 scripts/apply_paper_fills.py --date YYYY-MM-DD` to dry-run ledger changes from fill candidates.
 - Only use `python3 scripts/apply_paper_fills.py --date YYYY-MM-DD --apply` after confirming the fill review and source-backed price. The script appends synthetic `filled` rows idempotently and writes an apply log; it never calls a broker.
 

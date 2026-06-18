@@ -168,6 +168,7 @@ class AuditMonitorTests(unittest.TestCase):
                 {
                     "as_of": as_of,
                     "data_boundary": "Synthetic paper-fill review only; no broker order, account access, or live execution.",
+                    "risk_gate": {"status": "ok"},
                     "reviews": [],
                     "summary": {"total": 0},
                 }

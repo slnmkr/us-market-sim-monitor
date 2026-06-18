@@ -65,6 +65,7 @@ def build_run_card(as_of: str, *, root: Path = ROOT) -> dict[str, Any]:
         },
         "paper_execution": {
             "fill_decisions": decisions,
+            "risk_gate": fill_review.get("risk_gate", {}),
             "apply_mode": apply_log.get("mode"),
             "applied_count": apply_log.get("applied_count"),
             "dry_run_append_count": apply_log.get("dry_run_append_count"),
@@ -161,4 +162,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

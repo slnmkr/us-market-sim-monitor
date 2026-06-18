@@ -25,7 +25,9 @@ except ImportError:  # pragma: no cover - used when executed as a script.
 ROOT = Path(__file__).resolve().parents[1]
 TRADES = ROOT / "journal" / "paper_trades.csv"
 SNAPSHOTS = ROOT / "data" / "market_snapshots"
+EVENT_RISK = ROOT / "data" / "event_risk"
 FILL_REVIEWS = ROOT / "journal" / "fill_reviews"
+WATCHLIST = ROOT / "config" / "watchlist.json"
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -38,22 +40,152 @@ def review_plans(
     *,
     trades_path: Path = TRADES,
     snapshot_path: Path | None = None,
+    event_risk_path: Path | None = None,
+    watchlist_path: Path = WATCHLIST,
     max_gap_pct: float = 1.5,
 ) -> dict[str, Any]:
     snapshot_path = snapshot_path or (SNAPSHOTS / f"{as_of}.json")
+    event_risk_path = event_risk_path or (EVENT_RISK / f"{as_of}.json")
     snapshot = load_json(snapshot_path)
     quotes = quote_summary(snapshot)
-    reviews = [
-        _review_order(as_of, order, quotes.get(order["symbol"]), max_gap_pct)
-        for order in planned_orders(load_trades(trades_path))
-    ]
+    risk_gate = _load_risk_gate(as_of, event_risk_path, watchlist_path)
+    reviews = _apply_risk_gate(
+        [
+            _review_order(as_of, order, quotes.get(order["symbol"]), max_gap_pct)
+            for order in planned_orders(load_trades(trades_path))
+        ],
+        risk_gate,
+    )
     return {
         "as_of": as_of,
         "snapshot": str(snapshot_path),
+        "event_risk": str(event_risk_path),
         "data_boundary": "Synthetic paper-fill review only; no broker order, account access, or live execution.",
         "max_gap_pct": max_gap_pct,
+        "risk_gate": risk_gate,
         "summary": _summary(reviews),
         "reviews": reviews,
+    }
+
+
+def _load_risk_gate(as_of: str, event_risk_path: Path, watchlist_path: Path) -> dict[str, Any]:
+    if not event_risk_path.exists():
+        return {
+            "status": "missing_event_risk",
+            "event_risk_path": str(event_risk_path),
+            "risk_level": "unknown",
+            "max_new_gross_exposure_pct": None,
+            "starting_cash": None,
+            "max_new_gross_exposure_usd": None,
+            "reason": "event risk artifact is required before same-day synthetic fills can be considered",
+        }
+    event_risk = load_json(event_risk_path)
+    current = event_risk.get("current_risk", {})
+    cap = current.get("max_new_gross_exposure_pct")
+    starting_cash = _starting_cash(watchlist_path)
+    try:
+        max_exposure = float(cap) * starting_cash if cap is not None and starting_cash is not None else None
+    except (TypeError, ValueError):
+        max_exposure = None
+    return {
+        "status": "ok" if event_risk.get("as_of") == as_of else "event_risk_date_mismatch",
+        "event_risk_path": str(event_risk_path),
+        "risk_level": current.get("risk_level", "unknown"),
+        "max_new_gross_exposure_pct": cap,
+        "starting_cash": starting_cash,
+        "max_new_gross_exposure_usd": max_exposure,
+        "reasons": current.get("reasons", []),
+        "actions": current.get("actions", []),
+    }
+
+
+def _starting_cash(watchlist_path: Path) -> float | None:
+    if not watchlist_path.exists():
+        return None
+    try:
+        return float(load_json(watchlist_path).get("paper_account", {}).get("starting_cash"))
+    except (TypeError, ValueError):
+        return None
+
+
+def _apply_risk_gate(reviews: list[dict[str, Any]], risk_gate: dict[str, Any]) -> list[dict[str, Any]]:
+    candidates = [item for item in reviews if item.get("decision") == "fill_candidate"]
+    if not candidates:
+        return reviews
+
+    if risk_gate.get("status") != "ok":
+        return [
+            _block_candidate(item, "blocked_missing_event_risk", risk_gate.get("reason") or risk_gate.get("status", "event risk unavailable"))
+            if item.get("decision") == "fill_candidate"
+            else item
+            for item in reviews
+        ]
+
+    risk_level = risk_gate.get("risk_level")
+    if risk_level == "closed":
+        return [
+            _block_candidate(item, "blocked_event_risk", "event risk level is closed; no synthetic fills are allowed")
+            if item.get("decision") == "fill_candidate"
+            else item
+            for item in reviews
+        ]
+
+    cap_usd = risk_gate.get("max_new_gross_exposure_usd")
+    if cap_usd is None:
+        return [
+            _block_candidate(item, "blocked_event_risk", "event risk cap could not be computed from watchlist starting cash")
+            if item.get("decision") == "fill_candidate"
+            else item
+            for item in reviews
+        ]
+
+    candidate_new_gross = sum(
+        float(item.get("fill_notional_usd", 0.0))
+        for item in candidates
+        if item.get("side") == "buy"
+    )
+    if candidate_new_gross > float(cap_usd) + 1e-9:
+        reason = f"candidate new gross {candidate_new_gross:.2f} exceeds event-risk cap {float(cap_usd):.2f}"
+        return [
+            _block_candidate(
+                item,
+                "blocked_event_risk",
+                reason,
+                candidate_new_gross_usd=candidate_new_gross,
+                max_new_gross_exposure_usd=float(cap_usd),
+            )
+            if item.get("decision") == "fill_candidate"
+            else item
+            for item in reviews
+        ]
+
+    return [
+        {
+            **item,
+            "risk_gate_decision": "passed_event_risk_cap",
+            "risk_level": risk_level,
+            "candidate_new_gross_usd": candidate_new_gross,
+            "max_new_gross_exposure_usd": float(cap_usd),
+        }
+        if item.get("decision") == "fill_candidate"
+        else item
+        for item in reviews
+    ]
+
+
+def _block_candidate(
+    review: dict[str, Any],
+    decision: str,
+    reason: str,
+    **extra: Any,
+) -> dict[str, Any]:
+    out = {key: value for key, value in review.items() if key != "suggested_trade_row"}
+    return {
+        **out,
+        **extra,
+        "decision": decision,
+        "prior_decision": review.get("decision"),
+        "reason": reason,
     }
 
 
@@ -186,4 +318,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

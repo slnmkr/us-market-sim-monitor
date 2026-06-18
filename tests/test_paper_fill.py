@@ -30,9 +30,19 @@ class PaperFillReviewTests(unittest.TestCase):
             root = Path(tmp)
             trades = self._write_trades(root, trade_date="2026-06-22", price=100.0, quantity=3)
             snapshot = self._write_snapshot(root, as_of="2026-06-22", quote_date="2026-06-22", close=101.0)
-            payload = review_plans("2026-06-22", trades_path=trades, snapshot_path=snapshot, max_gap_pct=1.5)
+            risk = self._write_event_risk(root, as_of="2026-06-22", risk_level="normal", cap=0.9)
+            watchlist = self._write_watchlist(root, starting_cash=1000.0)
+            payload = review_plans(
+                "2026-06-22",
+                trades_path=trades,
+                snapshot_path=snapshot,
+                event_risk_path=risk,
+                watchlist_path=watchlist,
+                max_gap_pct=1.5,
+            )
             review = payload["reviews"][0]
             self.assertEqual(review["decision"], "fill_candidate")
+            self.assertEqual(review["risk_gate_decision"], "passed_event_risk_cap")
             self.assertEqual(review["suggested_trade_row"]["status"], "filled")
             self.assertEqual(review["suggested_trade_row"]["notional_usd"], "303.00")
 
@@ -43,6 +53,61 @@ class PaperFillReviewTests(unittest.TestCase):
             snapshot = self._write_snapshot(root, as_of="2026-06-22", quote_date="2026-06-22", close=103.0)
             payload = review_plans("2026-06-22", trades_path=trades, snapshot_path=snapshot, max_gap_pct=1.5)
             self.assertEqual(payload["reviews"][0]["decision"], "blocked_gap")
+
+    def test_closed_event_risk_blocks_candidate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trades = self._write_trades(root, trade_date="2026-06-22", price=100.0, quantity=1)
+            snapshot = self._write_snapshot(root, as_of="2026-06-22", quote_date="2026-06-22", close=100.0)
+            risk = self._write_event_risk(root, as_of="2026-06-22", risk_level="closed", cap=0.0)
+            watchlist = self._write_watchlist(root, starting_cash=1000.0)
+
+            payload = review_plans(
+                "2026-06-22",
+                trades_path=trades,
+                snapshot_path=snapshot,
+                event_risk_path=risk,
+                watchlist_path=watchlist,
+            )
+
+            self.assertEqual(payload["reviews"][0]["decision"], "blocked_event_risk")
+            self.assertNotIn("suggested_trade_row", payload["reviews"][0])
+
+    def test_event_risk_cap_blocks_oversized_candidate_set(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trades = self._write_trades(root, trade_date="2026-06-22", price=100.0, quantity=7)
+            snapshot = self._write_snapshot(root, as_of="2026-06-22", quote_date="2026-06-22", close=100.0)
+            risk = self._write_event_risk(root, as_of="2026-06-22", risk_level="high", cap=0.65)
+            watchlist = self._write_watchlist(root, starting_cash=1000.0)
+
+            payload = review_plans(
+                "2026-06-22",
+                trades_path=trades,
+                snapshot_path=snapshot,
+                event_risk_path=risk,
+                watchlist_path=watchlist,
+            )
+
+            review = payload["reviews"][0]
+            self.assertEqual(review["decision"], "blocked_event_risk")
+            self.assertEqual(review["prior_decision"], "fill_candidate")
+            self.assertGreater(review["candidate_new_gross_usd"], review["max_new_gross_exposure_usd"])
+
+    def test_explicit_missing_event_risk_blocks_candidate(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            trades = self._write_trades(root, trade_date="2026-06-22", price=100.0, quantity=1)
+            snapshot = self._write_snapshot(root, as_of="2026-06-22", quote_date="2026-06-22", close=100.0)
+
+            payload = review_plans(
+                "2026-06-22",
+                trades_path=trades,
+                snapshot_path=snapshot,
+                event_risk_path=root / "missing-risk.json",
+            )
+
+            self.assertEqual(payload["reviews"][0]["decision"], "blocked_missing_event_risk")
 
     def _write_trades(self, root: Path, *, trade_date: str, price: float = 100.0, quantity: int = 1) -> Path:
         path = root / "paper_trades.csv"
@@ -104,7 +169,32 @@ class PaperFillReviewTests(unittest.TestCase):
         )
         return path
 
+    def _write_event_risk(self, root: Path, *, as_of: str, risk_level: str, cap: float) -> Path:
+        path = root / f"{as_of}.risk.json"
+        path.write_text(
+            json.dumps(
+                {
+                    "as_of": as_of,
+                    "current_risk": {
+                        "risk_level": risk_level,
+                        "max_new_gross_exposure_pct": cap,
+                        "reasons": [f"{risk_level} test risk"],
+                        "actions": [],
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+        return path
+
+    def _write_watchlist(self, root: Path, *, starting_cash: float) -> Path:
+        path = root / "watchlist.json"
+        path.write_text(
+            json.dumps({"paper_account": {"starting_cash": starting_cash}}),
+            encoding="utf-8",
+        )
+        return path
+
 
 if __name__ == "__main__":
     unittest.main()
-

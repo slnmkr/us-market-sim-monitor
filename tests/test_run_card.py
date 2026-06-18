@@ -62,7 +62,12 @@ class RunCardTests(unittest.TestCase):
             encoding="utf-8",
         )
         (root / f"journal/fill_reviews/{as_of}.json").write_text(
-            json.dumps({"reviews": [{"decision": "fill_candidate"}] if dry_run_append_count else []}),
+            json.dumps(
+                {
+                    "risk_gate": {"status": "ok", "risk_level": risk_level},
+                    "reviews": [{"decision": "fill_candidate"}] if dry_run_append_count else [],
+                }
+            ),
             encoding="utf-8",
         )
         (root / f"journal/apply_logs/{as_of}.dry_run.json").write_text(
@@ -94,4 +99,3 @@ class RunCardTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

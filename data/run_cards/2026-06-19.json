@@ -1,7 +1,7 @@
 {
   "as_of": "2026-06-19",
   "data_boundary": "Local run card from public-source paper-monitor artifacts only; no broker connection, no secrets, no account access, no live orders.",
-  "generated_at_utc": "2026-06-18T23:27:13+00:00",
+  "generated_at_utc": "2026-06-18T23:31:52+00:00",
   "live_gate": {
     "blocker_codes": [
       "insufficient_paper_observations",
@@ -116,6 +116,20 @@
     "fill_decisions": {
       "pending_future": 4,
       "total": 4
+    },
+    "risk_gate": {
+      "actions": [
+        "No paper fills or new paper entries on the closed-market date."
+      ],
+      "event_risk_path": "/Users/tuaozhang/zhangta/repo/us-market-sim-monitor/data/event_risk/2026-06-19.json",
+      "max_new_gross_exposure_pct": 0.0,
+      "max_new_gross_exposure_usd": 0.0,
+      "reasons": [
+        "NYSE closed for Juneteenth National Independence Day (2026-06-19, days_until=0)"
+      ],
+      "risk_level": "closed",
+      "starting_cash": 100000.0,
+      "status": "ok"
     }
   },
   "source_check": {
