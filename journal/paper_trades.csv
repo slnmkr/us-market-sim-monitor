@@ -1,0 +1,7 @@
+trade_date,time_et,symbol,side,quantity,price,status,notional_usd,reason,sources,notes
+2026-06-19,all_day,CASH,hold,0,0,no_trade,0,"NYSE closed for Juneteenth; no real or paper fill.","https://www.nyse.com/trade/hours-calendars","Daily operation is observation only."
+2026-06-22,09:30,SPY,buy,53,746.74,planned,39577.22,"Core beta leg for synthetic ETF paper account; execute only if Monday open is within 1.5% of the 2026-06-18 close and no new shock appears.","https://apnews.com/article/wall-street-stocks-dow-nasdaq-411ec68891aa5dc7d7f684e0305e2aa3","Synthetic plan; not a broker order."
+2026-06-22,09:30,QQQ,buy,27,740.62,planned,19996.74,"Momentum/growth leg after Nasdaq leadership; keep below 20% notional because Fed/inflation risk is not resolved.","https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm","Synthetic plan; not a broker order."
+2026-06-22,09:30,IWM,buy,33,295.59,planned,9754.47,"Small-cap confirmation leg after Russell 2000 rebound; smaller size due to higher beta.","https://apnews.com/article/wall-street-stocks-dow-nasdaq-411ec68891aa5dc7d7f684e0305e2aa3","Synthetic plan; not a broker order."
+2026-06-22,09:30,TLT,buy,230,86.75,planned,19952.50,"Duration hedge against growth-stock reversal and lower yields; review if yields gap higher.","https://apnews.com/article/wall-street-stocks-dow-nasdaq-411ec68891aa5dc7d7f684e0305e2aa3","Synthetic plan; not a broker order."
+
