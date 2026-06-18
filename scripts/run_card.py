@@ -74,6 +74,10 @@ def build_run_card(as_of: str, *, root: Path = ROOT) -> dict[str, Any]:
         "live_gate": {
             "status": live_gate["status"],
             "blocker_codes": [item["code"] for item in live_gate.get("blockers", [])],
+            "required_file_statuses": {
+                item.get("path", f"required_file_{idx}"): item.get("status")
+                for idx, item in enumerate(live_gate.get("required_file_checks", []), start=1)
+            },
             "warnings": live_gate.get("warnings", []),
         },
         "source_check": {

@@ -7,6 +7,7 @@
 - 真实账户：未接入，禁止自动下真实单。
 - 模拟盘：以 `journal/paper_trades.csv` 为唯一交易账本，所有交易必须标注 `planned`、`filled`、`canceled` 或 `no_trade`。
 - 预交易门控：计划单转为模拟成交候选前，必须同时通过报价日期、跳空阈值和 `data/event_risk/YYYY-MM-DD.json` 宏观风险上限。
+- 实盘前置材料：`config/live_mandate.json` 和 `config/broker_connection.json` 必须是非密、非模板、未过期、带明确风险上限的用户材料；示例文件不会解除 gate。
 - 数据来源：报告必须记录来源 URL 和采集时间；无法采集时必须写明缺口。
 - Git 留痕：每日新增或更新报告、账本、快照后提交一次 commit。
 

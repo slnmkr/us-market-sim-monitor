@@ -1,0 +1,16 @@
+{
+  "template": true,
+  "description": "EXAMPLE ONLY - copy to config/live_mandate.json and replace every value before manual live review.",
+  "user_written": false,
+  "authorized_by": "EXAMPLE_ONLY",
+  "created_on": "YYYY-MM-DD",
+  "expires_on": "YYYY-MM-DD",
+  "broker": "EXAMPLE_BROKER",
+  "account_scope": ["EXAMPLE_ACCOUNT_ALIAS"],
+  "instrument_scope": ["US listed ETFs only"],
+  "max_order_notional_usd": 1000,
+  "max_gross_exposure_pct": 0.25,
+  "max_daily_loss_pct": 0.01,
+  "allowed_order_types": ["market", "limit"],
+  "no_automatic_live_orders": true
+}

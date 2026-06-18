@@ -1,7 +1,7 @@
 {
   "as_of": "2026-06-19",
   "data_boundary": "Local run card from public-source paper-monitor artifacts only; no broker connection, no secrets, no account access, no live orders.",
-  "generated_at_utc": "2026-06-18T23:35:39+00:00",
+  "generated_at_utc": "2026-06-18T23:40:12+00:00",
   "live_gate": {
     "blocker_codes": [
       "insufficient_paper_observations",
@@ -9,6 +9,10 @@
       "missing_required_file",
       "missing_git_remote"
     ],
+    "required_file_statuses": {
+      "config/broker_connection.json": "missing",
+      "config/live_mandate.json": "missing"
+    },
     "status": "blocked",
     "warnings": [
       "Git user.email is a local placeholder, not a verified GitHub email."

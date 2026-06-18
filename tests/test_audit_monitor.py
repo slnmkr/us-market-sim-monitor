@@ -143,6 +143,7 @@ class AuditMonitorTests(unittest.TestCase):
                     "blockers": [{"code": "test", "message": "blocked"}],
                     "warnings": [],
                     "git": {"has_remote": False, "remotes": [], "identity": {}},
+                    "required_file_checks": [{"path": "config/live_mandate.json", "status": "missing"}],
                 }
             ),
             encoding="utf-8",

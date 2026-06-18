@@ -19,7 +19,7 @@
     }
   ],
   "data_boundary": "Local live-account preflight only; no broker connection, no secrets, no account access, no live orders.",
-  "generated_at_utc": "2026-06-18T23:35:39+00:00",
+  "generated_at_utc": "2026-06-18T23:40:12+00:00",
   "git": {
     "has_remote": false,
     "identity": {
@@ -34,6 +34,16 @@
     "min_paper_total_return_pct": 0.0,
     "require_git_remote": true
   },
+  "required_file_checks": [
+    {
+      "path": "config/live_mandate.json",
+      "status": "missing"
+    },
+    {
+      "path": "config/broker_connection.json",
+      "status": "missing"
+    }
+  ],
   "status": "blocked",
   "warnings": [
     "Git user.email is a local placeholder, not a verified GitHub email."

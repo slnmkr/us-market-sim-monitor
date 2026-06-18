@@ -86,6 +86,7 @@ class RunCardTests(unittest.TestCase):
                 {
                     "status": live_status,
                     "blockers": [{"code": "missing_git_remote"}] if live_status == "blocked" else [],
+                    "required_file_checks": [{"path": "config/live_mandate.json", "status": "missing"}],
                     "warnings": [],
                 }
             ),

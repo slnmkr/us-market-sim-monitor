@@ -1,0 +1,10 @@
+{
+  "template": true,
+  "description": "EXAMPLE ONLY - copy to config/broker_connection.json and replace every value. Do not include secrets.",
+  "broker_name": "EXAMPLE_BROKER",
+  "environment": "unknown",
+  "account_type": "individual",
+  "capabilities": ["quotes", "paper_trading"],
+  "credentials_included": false,
+  "credential_storage": "external_only"
+}

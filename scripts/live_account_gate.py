@@ -71,10 +71,24 @@ def evaluate_live_gate(
                 )
             )
 
+    required_file_checks: list[dict[str, Any]] = []
     for item in policy.get("required_files", []):
         required_path = root / item["path"]
         if not required_path.exists():
             blockers.append(_blocker("missing_required_file", f"Missing {item['path']}: {item['description']}"))
+            required_file_checks.append({"path": item["path"], "status": "missing"})
+            continue
+        file_errors, file_warnings = _validate_required_file(item["path"], required_path, as_of)
+        required_file_checks.append(
+            {
+                "path": item["path"],
+                "status": "ok" if not file_errors else "invalid",
+                "errors": file_errors,
+                "warnings": file_warnings,
+            }
+        )
+        blockers.extend(_blocker("invalid_required_file", f"{item['path']}: {error}") for error in file_errors)
+        warnings.extend(f"{item['path']}: {warning}" for warning in file_warnings)
 
     remote_info = _git_remote_info(root)
     if policy.get("require_git_remote") and not remote_info["has_remote"]:
@@ -98,6 +112,7 @@ def evaluate_live_gate(
             "max_allowed_drawdown_pct": policy["max_allowed_drawdown_pct"],
             "require_git_remote": policy["require_git_remote"],
         },
+        "required_file_checks": required_file_checks,
         "git": {
             **remote_info,
             "identity": identity,
@@ -122,6 +137,158 @@ def _optional_json(path: Path) -> dict[str, Any] | None:
 
 def _blocker(code: str, message: str) -> dict[str, str]:
     return {"code": code, "message": message}
+
+
+def _validate_required_file(rel_path: str, path: Path, as_of: str) -> tuple[list[str], list[str]]:
+    if rel_path == "config/live_mandate.json":
+        return _validate_live_mandate(path, as_of)
+    if rel_path == "config/broker_connection.json":
+        return _validate_broker_manifest(path)
+    return [], []
+
+
+def _validate_live_mandate(path: Path, as_of: str) -> tuple[list[str], list[str]]:
+    data, errors = _load_gate_json(path)
+    warnings: list[str] = []
+    if data is None:
+        return errors, warnings
+
+    required = {
+        "user_written",
+        "authorized_by",
+        "created_on",
+        "expires_on",
+        "broker",
+        "account_scope",
+        "instrument_scope",
+        "max_order_notional_usd",
+        "max_gross_exposure_pct",
+        "max_daily_loss_pct",
+        "allowed_order_types",
+        "no_automatic_live_orders",
+    }
+    errors.extend(_missing_fields(data, required))
+    if errors:
+        return errors, warnings
+
+    if data.get("user_written") is not True:
+        errors.append("user_written must be true")
+    if data.get("no_automatic_live_orders") is not True:
+        errors.append("no_automatic_live_orders must be true for manual live review")
+    for field in ["authorized_by", "broker"]:
+        if not str(data.get(field, "")).strip():
+            errors.append(f"{field} must be non-empty")
+    for field in ["account_scope", "instrument_scope", "allowed_order_types"]:
+        if not isinstance(data.get(field), list) or not data[field] or not all(str(item).strip() for item in data[field]):
+            errors.append(f"{field} must be a non-empty list of strings")
+    for field in ["max_order_notional_usd", "max_gross_exposure_pct", "max_daily_loss_pct"]:
+        value = _to_float(data.get(field))
+        if value is None or value <= 0:
+            errors.append(f"{field} must be a positive number")
+    gross = _to_float(data.get("max_gross_exposure_pct"))
+    daily_loss = _to_float(data.get("max_daily_loss_pct"))
+    if gross is not None and gross > 1.0:
+        errors.append("max_gross_exposure_pct must be <= 1.0")
+    if daily_loss is not None and daily_loss > 0.1:
+        warnings.append("max_daily_loss_pct is above 10%; review before live use")
+
+    created = _parse_date(data.get("created_on"))
+    expires = _parse_date(data.get("expires_on"))
+    current = _parse_date(as_of)
+    if created is None:
+        errors.append("created_on must be an ISO date YYYY-MM-DD")
+    if expires is None:
+        errors.append("expires_on must be an ISO date YYYY-MM-DD")
+    if expires is not None and current is not None and expires < current:
+        errors.append(f"expires_on {data.get('expires_on')} is before gate date {as_of}")
+    if created is not None and expires is not None and created > expires:
+        errors.append("created_on must be on or before expires_on")
+
+    secret_paths = _secret_like_paths(data)
+    if secret_paths:
+        errors.append("live mandate must not contain secret-like keys: " + ", ".join(secret_paths))
+    return errors, warnings
+
+
+def _validate_broker_manifest(path: Path) -> tuple[list[str], list[str]]:
+    data, errors = _load_gate_json(path)
+    warnings: list[str] = []
+    if data is None:
+        return errors, warnings
+
+    required = {
+        "broker_name",
+        "environment",
+        "account_type",
+        "capabilities",
+        "credentials_included",
+        "credential_storage",
+    }
+    errors.extend(_missing_fields(data, required))
+    if errors:
+        return errors, warnings
+
+    for field in ["broker_name", "account_type", "credential_storage"]:
+        if not str(data.get(field, "")).strip():
+            errors.append(f"{field} must be non-empty")
+    if data.get("environment") not in {"paper", "live", "unknown"}:
+        errors.append("environment must be one of: paper, live, unknown")
+    if not isinstance(data.get("capabilities"), list) or not data["capabilities"] or not all(str(item).strip() for item in data["capabilities"]):
+        errors.append("capabilities must be a non-empty list of strings")
+    if data.get("credentials_included") is not False:
+        errors.append("credentials_included must be false")
+    if str(data.get("credential_storage", "")).strip() != "external_only":
+        errors.append("credential_storage must be external_only")
+    secret_paths = _secret_like_paths(data)
+    if secret_paths:
+        errors.append("broker manifest must not contain secret-like keys: " + ", ".join(secret_paths))
+    return errors, warnings
+
+
+def _load_gate_json(path: Path) -> tuple[dict[str, Any] | None, list[str]]:
+    try:
+        data = load_json(path)
+    except json.JSONDecodeError as exc:
+        return None, [f"invalid JSON: {exc}"]
+    if not isinstance(data, dict):
+        return None, ["must be a JSON object"]
+    if data.get("template") is True:
+        return None, ["template examples are not accepted as live gate inputs"]
+    return data, []
+
+
+def _missing_fields(data: dict[str, Any], fields: set[str]) -> list[str]:
+    return [f"missing field {field}" for field in sorted(fields) if field not in data]
+
+
+def _to_float(value: Any) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_date(value: Any) -> date | None:
+    try:
+        return date.fromisoformat(str(value))
+    except (TypeError, ValueError):
+        return None
+
+
+def _secret_like_paths(value: Any, prefix: str = "") -> list[str]:
+    forbidden = ("api_key", "apikey", "access_token", "token", "password", "cookie", "secret")
+    paths: list[str] = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            path = f"{prefix}.{key}" if prefix else str(key)
+            lowered = str(key).lower()
+            if any(item in lowered for item in forbidden):
+                paths.append(path)
+            paths.extend(_secret_like_paths(child, path))
+    elif isinstance(value, list):
+        for idx, child in enumerate(value):
+            paths.extend(_secret_like_paths(child, f"{prefix}[{idx}]"))
+    return paths
 
 
 def _git_remote_info(root: Path) -> dict[str, Any]:
@@ -176,4 +343,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

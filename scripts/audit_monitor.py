@@ -347,6 +347,15 @@ def _audit_live_gate(live_gate: dict[str, Any], as_of: str, errors: list[str]) -
         errors.append("blocked live gate must include at least one blocker")
     if not isinstance(live_gate.get("git"), dict):
         errors.append("live gate git section must be an object")
+    checks = live_gate.get("required_file_checks")
+    if not isinstance(checks, list) or not checks:
+        errors.append("live gate required_file_checks must be a non-empty list")
+    else:
+        for idx, item in enumerate(checks, start=1):
+            if item.get("status") not in {"ok", "missing", "invalid"}:
+                errors.append(f"live gate required_file_checks row {idx}: invalid status {item.get('status')!r}")
+            if not item.get("path"):
+                errors.append(f"live gate required_file_checks row {idx}: missing path")
 
 
 def _audit_run_card(run_card: dict[str, Any], as_of: str, errors: list[str]) -> None:
