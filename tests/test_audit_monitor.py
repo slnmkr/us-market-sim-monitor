@@ -39,6 +39,7 @@ class AuditMonitorTests(unittest.TestCase):
             "journal",
             "journal/fill_reviews",
             "data/event_risk",
+            "data/performance",
             "data/market_snapshots",
             "data/source_checks",
             "reports",
@@ -104,6 +105,25 @@ class AuditMonitorTests(unittest.TestCase):
                     },
                     "next_events": [],
                     "active_events": [],
+                }
+            ),
+            encoding="utf-8",
+        )
+        (root / f"data/performance/{as_of}.json").write_text(
+            json.dumps(
+                {
+                    "as_of": as_of,
+                    "data_boundary": "Local paper equity curve and public market snapshots only; no broker or account data.",
+                    "status": "ok",
+                    "paper": {
+                        "observations": 1,
+                        "latest_equity": 100000.0,
+                        "total_return_pct": 0.0,
+                        "one_day_return_pct": 0.0,
+                        "max_drawdown_pct": 0.0,
+                    },
+                    "benchmark": {"status": "ok", "symbol": "SPY", "total_return_pct": 0.0},
+                    "comparison": {"status": "ok", "excess_return_pct": 0.0},
                 }
             ),
             encoding="utf-8",

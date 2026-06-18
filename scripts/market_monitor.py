@@ -27,6 +27,7 @@ try:
         upsert_equity_curve,
         validate_trades,
     )
+    from .performance import build_performance, write_performance
 except ImportError:  # pragma: no cover - used when executed as a script.
     from event_risk import assess_event_risk, write_event_risk
     from paper_account import (
@@ -37,6 +38,7 @@ except ImportError:  # pragma: no cover - used when executed as a script.
         upsert_equity_curve,
         validate_trades,
     )
+    from performance import build_performance, write_performance
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -182,6 +184,8 @@ def render_report(as_of: str, snapshot: dict[str, Any], watchlist: dict[str, Any
     events = load_json(EVENTS).get("events", [])
     risk = assess_event_risk(as_of)
     write_event_risk(as_of, risk)
+    performance = build_performance(as_of)
+    write_performance(as_of, performance)
 
     lines = [
         f"# Generated US Market Monitor - {as_of}",
@@ -286,6 +290,25 @@ def render_report(as_of: str, snapshot: dict[str, Any], watchlist: dict[str, Any
             f"| {event['date']} | {event.get('time_et', '')} | {event['event']} | "
             f"{event['days_until']} | {event['risk_level']} |"
         )
+
+    lines.extend(["", "## Performance", ""])
+    if performance.get("status") != "ok":
+        lines.append(f"Status: `{performance.get('status')}`")
+        for err in performance.get("errors", []):
+            lines.append(f"- {err}")
+    else:
+        paper = performance["paper"]
+        comparison = performance["comparison"]
+        benchmark = performance["benchmark"]
+        lines.append(f"Observations: `{paper['observations']}`")
+        lines.append(f"Paper total return: `{paper['total_return_pct']:.4f}%`")
+        lines.append(f"Paper one-day return: `{paper['one_day_return_pct']:.4f}%`")
+        lines.append(f"Paper max drawdown: `{paper['max_drawdown_pct']:.4f}%`")
+        if comparison.get("status") == "ok":
+            lines.append(f"Benchmark {benchmark['symbol']} return: `{benchmark['total_return_pct']:.4f}%`")
+            lines.append(f"Excess return vs {benchmark['symbol']}: `{comparison['excess_return_pct']:.4f}%`")
+        else:
+            lines.append("Benchmark comparison: `missing_benchmark`")
 
     lines.extend(["", "## Event Register", ""])
     for event in events:

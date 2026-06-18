@@ -55,6 +55,7 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     snapshot_path = root / "data" / "market_snapshots" / f"{as_of}.json"
     source_path = root / "data" / "source_checks" / f"{as_of}.json"
     event_risk_path = root / "data" / "event_risk" / f"{as_of}.json"
+    performance_path = root / "data" / "performance" / f"{as_of}.json"
     fill_review_path = root / "journal" / "fill_reviews" / f"{as_of}.json"
     manual_report_path = root / "reports" / f"{as_of}.md"
     generated_report_path = root / "reports" / f"{as_of}.generated.md"
@@ -84,6 +85,10 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     event_risk = _required_json(event_risk_path, errors)
     if event_risk:
         _audit_event_risk(event_risk, as_of, errors)
+
+    performance = _required_json(performance_path, errors)
+    if performance:
+        _audit_performance(performance, as_of, errors)
 
     fill_review = _required_json(fill_review_path, errors)
     if fill_review:
@@ -241,6 +246,31 @@ def _audit_event_risk(event_risk: dict[str, Any], as_of: str, errors: list[str])
         errors.append("event risk max_new_gross_exposure_pct must be between 0 and 1")
     if not isinstance(event_risk.get("next_events"), list):
         errors.append("event risk next_events must be a list")
+
+
+def _audit_performance(performance: dict[str, Any], as_of: str, errors: list[str]) -> None:
+    if performance.get("as_of") != as_of:
+        errors.append(f"performance as_of {performance.get('as_of')!r} does not match {as_of}")
+    boundary = performance.get("data_boundary", "").lower()
+    if "no broker" not in boundary or "public market snapshots" not in boundary:
+        errors.append("performance must state local public-snapshot/no-broker data boundary")
+    if performance.get("status") != "ok":
+        errors.append(f"performance status is not ok: {performance.get('status')!r}")
+        return
+    paper = performance.get("paper")
+    if not isinstance(paper, dict):
+        errors.append("performance paper must be an object")
+        return
+    for field in ["latest_equity", "total_return_pct", "one_day_return_pct", "max_drawdown_pct"]:
+        try:
+            float(paper.get(field))
+        except (TypeError, ValueError):
+            errors.append(f"performance paper.{field} must be numeric")
+    if int(paper.get("observations", 0)) <= 0:
+        errors.append("performance paper.observations must be positive")
+    comparison = performance.get("comparison")
+    if not isinstance(comparison, dict):
+        errors.append("performance comparison must be an object")
 
 
 def _audit_report(path: Path, as_of: str, errors: list[str], warnings: list[str]) -> None:
