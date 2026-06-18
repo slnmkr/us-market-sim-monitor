@@ -42,6 +42,7 @@ class AuditMonitorTests(unittest.TestCase):
             "data/event_risk",
             "data/performance",
             "data/live_gate",
+            "data/run_cards",
             "data/market_snapshots",
             "data/source_checks",
             "reports",
@@ -139,6 +140,22 @@ class AuditMonitorTests(unittest.TestCase):
                     "blockers": [{"code": "test", "message": "blocked"}],
                     "warnings": [],
                     "git": {"has_remote": False, "remotes": [], "identity": {}},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (root / f"data/run_cards/{as_of}.json").write_text(
+            json.dumps(
+                {
+                    "as_of": as_of,
+                    "overall_status": "market_closed_no_trade",
+                    "data_boundary": "Local run card from public-source paper-monitor artifacts only; no broker connection, no secrets, no account access, no live orders.",
+                    "market": {},
+                    "paper_account": {},
+                    "paper_execution": {},
+                    "live_gate": {},
+                    "source_check": {},
+                    "next_actions": ["No paper fills."],
                 }
             ),
             encoding="utf-8",

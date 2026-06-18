@@ -1,0 +1,99 @@
+{
+  "as_of": "2026-06-19",
+  "data_boundary": "Local run card from public-source paper-monitor artifacts only; no broker connection, no secrets, no account access, no live orders.",
+  "generated_at_utc": "2026-06-18T23:18:05+00:00",
+  "live_gate": {
+    "blocker_codes": [
+      "insufficient_paper_observations",
+      "missing_required_file",
+      "missing_required_file",
+      "missing_git_remote"
+    ],
+    "status": "blocked",
+    "warnings": [
+      "Git user.email is a local placeholder, not a verified GitHub email."
+    ]
+  },
+  "market": {
+    "active_events": [
+      {
+        "date": "2026-06-19",
+        "event": "NYSE closed for Juneteenth National Independence Day",
+        "risk_level": "closed",
+        "source": "https://www.nyse.com/trade/hours-calendars"
+      }
+    ],
+    "max_new_gross_exposure_pct": 0.0,
+    "next_events": [
+      {
+        "date": "2026-06-19",
+        "days_until": 0,
+        "event": "NYSE closed for Juneteenth National Independence Day",
+        "risk_level": "closed",
+        "source": "https://www.nyse.com/trade/hours-calendars",
+        "time_et": "all_day"
+      },
+      {
+        "date": "2026-07-02",
+        "days_until": 13,
+        "event": "Employment Situation - June 2026",
+        "risk_level": "high",
+        "source": "https://www.bls.gov/schedule/news_release/empsit.htm",
+        "time_et": "08:30"
+      }
+    ],
+    "risk_level": "closed"
+  },
+  "next_actions": [
+    "No paper fills or new paper entries while the market is closed.",
+    "Keep live trading disabled; resolve live gate blockers before any broker review."
+  ],
+  "overall_status": "market_closed_no_trade",
+  "paper_account": {
+    "benchmark": {
+      "latest_close": 746.739990234375,
+      "latest_date": "2026-06-19",
+      "latest_quote_date_utc": "2026-06-18",
+      "missing_dates": [],
+      "observations": 1,
+      "source": "https://query1.finance.yahoo.com/v8/finance/chart/SPY?range=10d&interval=1d",
+      "start_close": 746.739990234375,
+      "start_date": "2026-06-19",
+      "start_quote_date_utc": "2026-06-18",
+      "status": "ok",
+      "symbol": "SPY",
+      "total_return_pct": 0.0
+    },
+    "comparison": {
+      "benchmark_return_pct": 0.0,
+      "excess_return_pct": 0.0,
+      "paper_return_pct": 0.0,
+      "status": "ok"
+    },
+    "latest_equity": 100000.0,
+    "max_drawdown_pct": 0.0,
+    "observations": 1,
+    "performance_status": "ok",
+    "total_return_pct": 0.0
+  },
+  "paper_execution": {
+    "applied_count": 0,
+    "apply_mode": "dry_run",
+    "candidate_count": 0,
+    "dry_run_append_count": 0,
+    "fill_decisions": {
+      "pending_future": 4,
+      "total": 4
+    }
+  },
+  "source_check": {
+    "check_count": 5,
+    "topics": [
+      "market_holiday",
+      "latest_us_equity_close",
+      "fomc",
+      "nonfarm_payroll_latest",
+      "nonfarm_payroll_next"
+    ]
+  }
+}

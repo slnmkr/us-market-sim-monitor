@@ -57,6 +57,7 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     event_risk_path = root / "data" / "event_risk" / f"{as_of}.json"
     performance_path = root / "data" / "performance" / f"{as_of}.json"
     live_gate_path = root / "data" / "live_gate" / f"{as_of}.json"
+    run_card_path = root / "data" / "run_cards" / f"{as_of}.json"
     fill_review_path = root / "journal" / "fill_reviews" / f"{as_of}.json"
     apply_log_paths = [
         root / "journal" / "apply_logs" / f"{as_of}.dry_run.json",
@@ -98,6 +99,10 @@ def audit_date(as_of: str, *, root: Path = ROOT) -> AuditResult:
     live_gate = _required_json(live_gate_path, errors)
     if live_gate:
         _audit_live_gate(live_gate, as_of, errors)
+
+    run_card = _required_json(run_card_path, errors)
+    if run_card:
+        _audit_run_card(run_card, as_of, errors)
 
     fill_review = _required_json(fill_review_path, errors)
     if fill_review:
@@ -326,6 +331,30 @@ def _audit_live_gate(live_gate: dict[str, Any], as_of: str, errors: list[str]) -
         errors.append("blocked live gate must include at least one blocker")
     if not isinstance(live_gate.get("git"), dict):
         errors.append("live gate git section must be an object")
+
+
+def _audit_run_card(run_card: dict[str, Any], as_of: str, errors: list[str]) -> None:
+    if run_card.get("as_of") != as_of:
+        errors.append(f"run card as_of {run_card.get('as_of')!r} does not match {as_of}")
+    boundary = run_card.get("data_boundary", "").lower()
+    for required in ["no broker", "no secrets", "no account access", "no live orders"]:
+        if required not in boundary:
+            errors.append(f"run card data boundary missing {required!r}")
+    allowed = {
+        "needs_data_repair",
+        "market_closed_no_trade",
+        "paper_fills_applied",
+        "paper_fill_candidates_pending_apply",
+        "paper_monitoring_live_blocked",
+        "paper_monitoring_live_review_possible",
+    }
+    if run_card.get("overall_status") not in allowed:
+        errors.append(f"run card has invalid overall_status {run_card.get('overall_status')!r}")
+    for section in ["market", "paper_account", "paper_execution", "live_gate", "source_check", "next_actions"]:
+        if section not in run_card:
+            errors.append(f"run card missing section {section}")
+    if not isinstance(run_card.get("next_actions"), list) or not run_card.get("next_actions"):
+        errors.append("run card next_actions must be a non-empty list")
 
 
 def _audit_report(path: Path, as_of: str, errors: list[str], warnings: list[str]) -> None:

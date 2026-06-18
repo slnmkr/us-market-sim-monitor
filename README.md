@@ -18,6 +18,7 @@ python3 scripts/performance.py --date 2026-06-19
 python3 scripts/paper_fill.py --date 2026-06-19
 python3 scripts/apply_paper_fills.py --date 2026-06-19
 python3 scripts/live_account_gate.py --date 2026-06-19
+python3 scripts/run_card.py --date 2026-06-19
 python3 scripts/audit_monitor.py --date 2026-06-19
 python3 -m unittest discover -s tests
 ```
@@ -31,6 +32,7 @@ python3 -m unittest discover -s tests
 - `journal/fill_reviews/YYYY-MM-DD.json`
 - `journal/apply_logs/YYYY-MM-DD.dry_run.json`
 - `data/live_gate/YYYY-MM-DD.json`
+- `data/run_cards/YYYY-MM-DD.json`
 - `reports/YYYY-MM-DD.generated.md`
 
 ## 每日流程
