@@ -8,8 +8,10 @@
 .PHONY: run-card
 .PHONY: daily-run
 .PHONY: daily-commit
+.PHONY: setup-remote
 
 DATE ?= $(shell date +%F)
+REMOTE_URL ?=
 
 report:
 	python3 scripts/market_monitor.py --date $(DATE)
@@ -43,3 +45,6 @@ daily-run:
 
 daily-commit:
 	python3 scripts/daily_run.py --date $(DATE) --commit
+
+setup-remote:
+	python3 scripts/setup_github_remote.py "$(REMOTE_URL)" --refresh-live-gate $(DATE)

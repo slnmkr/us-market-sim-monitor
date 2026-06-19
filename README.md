@@ -24,6 +24,7 @@ python3 scripts/run_card.py --date 2026-06-19
 python3 scripts/audit_monitor.py --date 2026-06-19
 python3 -m unittest discover -s tests
 python3 scripts/daily_run.py --date 2026-06-19
+python3 scripts/setup_github_remote.py https://github.com/USER/REPO.git --git-email USER_VERIFIED_EMAIL --refresh-live-gate 2026-06-19
 ```
 
 输出会写入：
