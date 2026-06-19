@@ -10,8 +10,10 @@ Checked on 2026-06-19 Asia/Shanghai.
 - Push check at `2026-06-19T09:50:03+0800`: `git push -u origin main` failed with `fatal: could not read Username for 'https://github.com': Device not configured`.
 - SSH remote check at `2026-06-19T10:01:55+0800`: origin was replaced with `git@github.com:slnmkr/us-market-sim-monitor.git`.
 - SSH push check at `2026-06-19T10:01:55+0800`: GitHub SSH authentication worked, but `git push -u origin main` was rejected because remote `main` already had an `Initial commit`; local history must fetch/merge before pushing.
+- Remote integration at `2026-06-19T10:03:46+0800`: fetched and merged `origin/main` with `--allow-unrelated-histories`; the remote README-only initial commit is preserved in local history.
+- SSH push success at `2026-06-19T10:03:46+0800`: `git push -u origin main` pushed local `main` to GitHub and set upstream tracking.
 
-The repository is currently auditable locally and has a configured SSH remote. Publishing to GitHub requires integrating the remote initial commit first; do not commit or paste GitHub passwords, cookies, or tokens into this repository.
+The repository is auditable locally and published to the configured SSH remote. Do not commit or paste GitHub passwords, cookies, or tokens into this repository.
 
 ## Safe local setup path
 
