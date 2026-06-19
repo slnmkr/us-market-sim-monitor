@@ -15,7 +15,7 @@
     }
   ],
   "data_boundary": "Local live-account preflight only; no broker connection, no secrets, no account access, no live orders.",
-  "generated_at_utc": "2026-06-19T01:49:25+00:00",
+  "generated_at_utc": "2026-06-19T02:00:29+00:00",
   "git": {
     "has_remote": true,
     "identity": {
@@ -23,8 +23,8 @@
       "name": "zhangta"
     },
     "remotes": [
-      "origin\thttps://github.com/slnmkr/us-market-sim-monitor.git (fetch)",
-      "origin\thttps://github.com/slnmkr/us-market-sim-monitor.git (push)"
+      "origin\tgit@github.com:slnmkr/us-market-sim-monitor.git (fetch)",
+      "origin\tgit@github.com:slnmkr/us-market-sim-monitor.git (push)"
     ]
   },
   "policy": {
